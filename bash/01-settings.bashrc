@@ -45,11 +45,8 @@ export MAVEN_LOCAL_REPOSITORY=$HOME/.m2/repository
 export MAVEN_HOME=M2_HOME
 # Ant
 export ANT_HOME=$SOFTWARE_FOLDER/Ant/current
-# SonarQube Runner
-export SONAR_RUNNER_HOME=$SOFTWARE_FOLDER/SonarRunner/current
-export SONAR_RUNNER_OPTS='-server'
-export SONAR_SCANNER_HOME=$SOFTWARE_FOLDER/SonarRunner/current
-export SONAR_SCANNER_OPTS='-server'
+# Sonar Scanner
+export SONAR_SCANNER_HOME=$SOFTWARE_FOLDER/SonarScanner/current
 # Gradle
 export GRADLE_HOME=$SOFTWARE_FOLDER/Gradle/current
 export GRADLE_OPTS="-Xmx1024M -XX:MaxPermSize=256M"
@@ -61,4 +58,4 @@ export GROOVY_HOME=$SOFTWARE_FOLDER/Groovy/current
 export SUBVERSION=/opt/subversion
 
 # Add all the tools to the PATH
-export PATH=$GROOVY_HOME/bin:$ANT_HOME/bin:$M2_HOME/bin:$SONAR_RUNNER_HOME/bin:$GRADLE_HOME/bin:$V8_HOME:$SUBVERSION/bin:$PATH
+export PATH=$GROOVY_HOME/bin:$ANT_HOME/bin:$M2_HOME/bin:$SONAR_SCANNER_HOME/bin:$GRADLE_HOME/bin:$V8_HOME:$SUBVERSION/bin:$PATH
