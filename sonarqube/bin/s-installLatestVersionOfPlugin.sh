@@ -33,6 +33,7 @@ installPluginInDeployFolder() {
   echo "... Installing $NAME"
   rm -f $DEPLOY_FOLDER/sonar-$NAME-plugin-*.jar
   cp $BINARY $DEPLOY_FOLDER
+  echo "$NAME installed"
 }
 
 PLUGINS_LIST=`ls $REPOS/sonar-$PLUGIN | grep plugin | sed 's/sonar-\(.*\)-plugin/\1/' `
