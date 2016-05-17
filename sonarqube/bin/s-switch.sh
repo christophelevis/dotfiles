@@ -1,5 +1,7 @@
 #!/bin/sh
 
+s-sonar.sh stop
+
 if [ "$1" = "" ] 
 then
   CURRENT=$SONAR_NEXT
@@ -24,3 +26,5 @@ then
 	rm $SONAR_CURRENT
 	ln -s $CURRENT $SONAR_CURRENT
 fi
+
+s-sonar.sh start
