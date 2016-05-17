@@ -1,9 +1,9 @@
 #!/bin/sh
-sonarVersion=`ls $REPOS/sonar/sonar-application/target/sonarqube-*-SNAPSHOT.zip | sed 's/.*target\/sonarqube-\(.*\)-SNAPSHOT\.zip/\1/' `
+sonarVersion=`ls $REPOS/sonarqube/sonar-application/target/sonarqube-*-SNAPSHOT.zip | sed 's/.*target\/sonarqube-\(.*\)-SNAPSHOT\.zip/\1/' `
 echo "Extracting SonarQube $sonarVersion"
 
 rm -rf $SONAR_NEXT_FILES/INSTALL/*
-unzip -q $REPOS/sonar/sonar-application/target/sonarqube-$sonarVersion-SNAPSHOT.zip -d $SONAR_NEXT_FILES/INSTALL
+unzip -q $REPOS/sonarqube/sonar-application/target/sonarqube-$sonarVersion-SNAPSHOT.zip -d $SONAR_NEXT_FILES/INSTALL
 mv $SONAR_NEXT_FILES/INSTALL/sonarqube-$sonarVersion-SNAPSHOT/lib/bundled-plugins/*.jar $SONAR_NEXT_FILES/INSTALL/sonarqube-$sonarVersion-SNAPSHOT/extensions/plugins/
 echo "Distribution unzipped"
 
