@@ -11,4 +11,5 @@ export GIT_COMPLETION_PATH=/etc/bash_completion.d/git-prompt
 export GIT_PROMPT_PATH=/etc/bash_completion.d/git-prompt
 
 # JAVA_HOME folder
-export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/
+#export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
