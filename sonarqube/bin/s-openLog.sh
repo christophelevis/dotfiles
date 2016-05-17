@@ -1,2 +1,2 @@
 #!/bin/sh
-open $SONAR_CURRENT/logs/sonar.log
+vi $SONAR_CURRENT/logs/sonar.log
