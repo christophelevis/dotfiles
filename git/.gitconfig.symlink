@@ -57,8 +57,8 @@
   unstage = reset HEAD
 
 [user]
-  name = Fabrice Bellingard
-  email = fabrice.bellingard@sonarsource.com
+  name = Christophe Levis
+  email = christophe.levis@sonarsource.com
 
 [github]
   user = bellingard
