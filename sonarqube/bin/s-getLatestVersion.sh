@@ -3,6 +3,6 @@
 # Exit on failure
 set -e
 
-cd $REPOS/sonar
+cd $REPOS/sonarqube
 git pull
 ./quick-build.sh
