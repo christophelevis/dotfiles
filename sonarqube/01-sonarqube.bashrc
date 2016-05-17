@@ -8,7 +8,6 @@ export PATH=$DOTFILES/sonarqube/bin:$PATH
 # ================================
 export SONAR_CURRENT=$SOFTWARE_FOLDER/SonarQube/current
 
-
 # ================================
 # Settings specific to test snapshot version of SonarQube
 # ================================
@@ -17,6 +16,16 @@ export SONAR_NEXT=$SOFTWARE_FOLDER/SonarQube/sonarqube-next
 export PLUGINS_DEV=$SONAR_NEXT/extensions/plugins
 alias s-next="cd $SONAR_NEXT"
 
+# ================================
+# Settings specific to test snapshot version of SonarScanner
+# ================================
+export SONAR_SCANNER_CURRENT=$SOFTWARE_FOLDER/SonarScanner/current
+
+# ================================
+# Settings specific to test snapshot version of SonarScanner
+# ================================
+export SONAR_SCANNER_NEXT_FILES=$SOFTWARE_FOLDER/SonarScanner/NEXT_VERSION_FILES
+export SONAR_SCANNER_NEXT=$SOFTWARE_FOLDER/SonarScanner/sonar-scanner-next
 
 # ================================
 # Env variables used for the different DB
