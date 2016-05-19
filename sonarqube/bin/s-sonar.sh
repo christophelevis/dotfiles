@@ -28,7 +28,7 @@ then
       if [ "$2" = "O" ] 
       then
         # copy the driver if it does not exist
-        ORACLE_DRIVER="$SONAR_NEXT/extensions/jdbc-driver/oracle/ojdbc6.jar"
+        ORACLE_DRIVER="$SONAR_CURRENT/extensions/jdbc-driver/oracle/ojdbc6.jar"
         if [ ! -f "$ORACLE_DRIVER" ]
         then
           echo "Copying ORACLE driver"
