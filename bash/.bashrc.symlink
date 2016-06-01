@@ -22,8 +22,9 @@ fi
 # ================================
 
 export DOTFILES=$HOME/Repos/dotfiles
+export PATH=$DOTFILES:$PATH
 
-for config_file in $DOTFILES/**/*.bashrc
+for config_file in $DOTFILES/**/*.bashrc $DOTFILES/**/**/*.bashrc
 do
   source $config_file
 done
