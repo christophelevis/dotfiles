@@ -35,7 +35,7 @@ _find_installed_versions_()
         fi
     done
 }
-_find_()
+_find_install_()
 {
     local cur prev
     _init_completion || return
@@ -46,4 +46,31 @@ _find_()
     COMPREPLY=( $(compgen -W "$(_find_installed_versions_)" -- $cur) )
     return 0
 }
-complete -F _find_ s-switch.sh
+complete -F _find_install_ s-switch.sh
+
+_find_archived_versions_()
+{
+    for file in ~/Software/SonarQube/*
+    do
+	if [ -f "$file" ]
+        then
+	    case $file in
+                *sonar*-*.zip)
+                    echo "$file" | sed 's/.*sonar[^-]*-//' | sed 's/\.zip//'
+                    ;;
+            esac
+        fi
+    done
+}
+_find_archive_()
+{
+    local cur prev
+    _init_completion || return
+
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+
+    COMPREPLY=( $(compgen -W "$(_find_archived_versions_)" -- $cur) )
+    return 0
+}
+complete -F _find_archive_ s-install.sh
