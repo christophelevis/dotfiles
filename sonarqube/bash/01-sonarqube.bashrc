@@ -38,7 +38,6 @@ _find_installed_versions_()
 _find_install_()
 {
     local cur prev
-    _init_completion || return
 
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
@@ -65,7 +64,6 @@ _find_archived_versions_()
 _find_archive_()
 {
     local cur prev
-    _init_completion || return
 
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
