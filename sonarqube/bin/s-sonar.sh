@@ -29,9 +29,6 @@ case "$1" in
         ;;
 
     "reset")
-        # clean temp data
-        s-clearDataFolder.sh
-
         # print out properties for the correct DB
         case "$2" in
             "-P")
@@ -72,6 +69,10 @@ case "$1" in
         # set credentials
         echo "sonar.jdbc.username=sonar" >> $SONAR_PROPERTIES_FILE
         echo "sonar.jdbc.password=sonar" >> $SONAR_PROPERTIES_FILE  
+
+        # clean temp data
+        rm -rf $SONAR_CURRENT/data/*
+        rm -rf $SONAR_CURRENT/logs/*
 	;;
 
     *)
