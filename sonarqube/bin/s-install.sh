@@ -23,26 +23,26 @@ dlAndExtractStable() {
     if [ ! "$HTTP_CODE" = "200" ]  
     then
         echo "error"
-	return
+        return
     fi
 
     echo "Dowloading $SONAR_NAME..." >&2
     curl -L -# -o "$INSTALL_PATH/$SONAR_NAME.zip" "$URL"
     unzip -q $INSTALL_PATH/$SONAR_NAME.zip -d "$SOFTWARE_FOLDER/SonarQube/"
-    echo "Distribution unzipped in $SONAR_NAME" >&2
+    echo "Distribution unzipped in '$SONAR_NAME'" >&2
     echo "done"
 }
 
 dlAndExtractBuild() {
     SONAR_NAME="sonar-application-$1"
     echo "Trying $SONAR_NAME on repox..." >&2
-    URL="https://repox.sonarsource.com/sonarsource-public-releases/org/sonarsource/sonarqube/sonar-application/$1/sonar-application-$1.zip"
+    URL="https://repox.sonarsource.com/sonarsource-public-releases/org/sonarsource/sonarqube/sonar-application/$1/$SONAR_NAME.zip"
 
     HTTP_CODE=$(curl --write-out '%{http_code}' --silent --output /dev/null --head "$URL")
     if [ ! "$HTTP_CODE" = "200" ]  
     then
         echo "error"
-	return
+        return
     fi
 
     echo "Dowloading $SONAR_NAME..." >&2
@@ -51,6 +51,8 @@ dlAndExtractBuild() {
     echo "Distribution unzipped in 'sonarqube-$1'" >&2
     echo "done"
 }
+
+echo "Install sonarqube"
 
 INSTALL_PATH=$SOFTWARE_FOLDER/SonarQube
 if [ -d "$INSTALL_PATH/sonarqube-$1" ]
@@ -83,19 +85,25 @@ else
 
                     case "$1" in 
                     *build*)
-                        dlAndExtractBuild $1
+                        ret=$(dlAndExtractBuild $1)
+                        if [ ! "$ret" = "done" ]
+                        then
+                            echo "Build not found!"
+                            exit 1
+                        fi
                         ;;
             
                     *)
-        		ret=$(dlAndExtractStable sonarqube-$1)
-        		if [ ! "$ret" = "done" ]
-        		then
-        		    ret=$(dlAndExtractStable sonar-$1)
-        		    if [ ! "$ret" = "done" ]
-        		    then
-        			echo "Build not found!"
-        		    fi
-        		fi
+                        ret=$(dlAndExtractStable sonarqube-$1)
+                        if [ ! "$ret" = "done" ]
+                        then
+                            ret=$(dlAndExtractStable sonar-$1)
+                            if [ ! "$ret" = "done" ]
+                            then
+                                echo "Version not found!"
+                                exit 1
+                            fi
+                        fi
                         ;;
                     esac
 
@@ -105,3 +113,5 @@ else
 
     fi
 fi
+
+s-switch.sh $1
