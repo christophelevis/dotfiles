@@ -3,20 +3,20 @@
 # Exit on failure
 set -e
 
+case "$1" in 
+    -h|--h|*-help)
+        echo "Usage: `basename $0` ..."
+	s-installSnapshotOfPlugin.sh -help
+        exit 0
+        ;;
+esac
+
+echo "Install snapshot of sonarqube"
+
 s-sonar.sh stop
 
-# Check if build is required for plugins
-for var in "$@"
-do
-    if [ "$var" = "-o" ]
-    then
-        echo "No build required for plugins"
-        PLUGIN_BUILD_OPTION="-o"
-    fi
-done
-
-# Get latest version of SonarQube
-echo "Get latest version of SonarQube"
+# Get latest version of sonarqube
+echo "Get latest version"
 cd $REPOS/sonarqube
 git pull
 
@@ -25,8 +25,8 @@ echo "Build (quiet mode)..."
 ./quick-build.sh -q
 
 # Unzip built package
-echo "Extract distribution"
 SONAR_VERSION=`ls $REPOS/sonarqube/sonar-application/target/sonarqube-*-SNAPSHOT.zip | sed 's/.*target\/sonarqube-\(.*\)-SNAPSHOT\.zip/\1/' `
+echo "Extract sonarqube version '$SONAR_VERSION'"
 
 rm -rf $SONAR_NEXT_FILES/INSTALL/*
 unzip -q $REPOS/sonarqube/sonar-application/target/sonarqube-$SONAR_VERSION-SNAPSHOT.zip -d $SONAR_NEXT_FILES/INSTALL
@@ -40,7 +40,7 @@ rm $SONAR_CURRENT
 ln -s $SONAR_NEXT_FILES/INSTALL/sonarqube-$SONAR_VERSION-SNAPSHOT $SONAR_CURRENT
 
 # Configure dev update center
-echo "Configure SonarQube with dev update center"
+echo "Configure sonarqube with dev update center"
 echo "\n\nsonar.updatecenter.url=http://update.sonarsource.org/update-center-dev.properties" >> $SONAR_NEXT/conf/sonar.properties
 
 # Restore backup plugins
@@ -50,14 +50,9 @@ then
     cp $SONAR_NEXT_FILES/BACKUP/*.jar $SONAR_NEXT/extensions/plugins/
 fi
  
-# Checks if plugins must be installed or not
-for var in "$@"
-do
-    if [ "$var" != "-o" ]
-    then
-        echo "Install latest version of plugin '$var'"
-        s-installLatestVersionOfPlugin.sh $var $PLUGIN_BUILD_OPTION
-    fi
-done
+if [ -n "$1" ]
+then
+    s-installSnapshotOfPlugin.sh $1
+fi
 
-echo "SonarQube '$SONAR_VERSION-SNAPSHOT' installed!"
+echo "Sonarqube '$SONAR_VERSION-SNAPSHOT' installed!"
