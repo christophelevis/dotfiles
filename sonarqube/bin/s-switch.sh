@@ -26,7 +26,7 @@ case "$1" in
             VERSION="$1"
             CURRENT=$SOFTWARE_FOLDER/SonarQube/sonar-$1
         else
-            echo "No SQ install folder found for version $1"
+            echo "No install folder found for version $1"
             echo "Current version is unchanged"
             usage
         fi

@@ -21,6 +21,7 @@ export PATH=$SONAR_SCANNER_CURRENT/bin:$PATH
 # ================================
 # Completion of sonarqube/bin commands
 # ================================
+# Find installed versions of sonarqube
 _find_installed_versions_()
 {
     for dir in ~/Software/SonarQube/*
@@ -28,6 +29,8 @@ _find_installed_versions_()
 	if [ -d "$dir" ]
         then
 	    case $dir in
+                *sonarqube-next)
+                    ;;
                 *sonar*-*)
                     echo "$dir" | sed 's/.*sonar[^-]*-//'
                     ;;
@@ -47,6 +50,7 @@ _find_install_()
 }
 complete -F _find_install_ s-switch.sh
 
+# Find archives of sonarqube
 _find_archived_versions_()
 {
     for file in ~/Software/SonarQube/*
@@ -55,7 +59,7 @@ _find_archived_versions_()
         then
 	    case $file in
                 *sonar*-*.zip)
-                    echo "$file" | sed 's/.*sonar[^-]*-//' | sed 's/\.zip//'
+                    echo "$file" | sed 's/.*sonar[^-]*-//' | sed 's/.*application[^-]*-//' | sed 's/\.zip//'
                     ;;
             esac
         fi
@@ -72,3 +76,87 @@ _find_archive_()
     return 0
 }
 complete -F _find_archive_ s-install.sh
+
+# Find installed versions of sonarscanner
+_find_installed_scanner_versions_()
+{
+    for dir in ~/Software/SonarScanner/*
+    do
+	if [ -d "$dir" ]
+        then
+	    case $dir in
+                *sonar-scanner-next)
+                    ;;
+                *sonar-scanner*-*)
+                    echo "$dir" | sed 's/.*sonar-scanner[^-]*-//'
+                    ;;
+            esac
+        fi
+    done
+}
+_find_install_scanner_()
+{
+    local cur prev
+
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+
+    COMPREPLY=( $(compgen -W "$(_find_installed_scanner_versions_)" -- $cur) )
+    return 0
+}
+complete -F _find_install_scanner_ s-switchScanner.sh
+
+# Find archives of scanner
+_find_archived_scanner_versions_()
+{
+    for file in ~/Software/SonarScanner/*
+    do
+	if [ -f "$file" ]
+        then
+	    case $file in
+                *sonar*-*.zip)
+                    echo "$file" | sed 's/.*sonar-scanner[^-]*-//' | sed 's/.*cli[^-]*-//' | sed 's/\.zip//'
+                    ;;
+            esac
+        fi
+    done
+}
+_find_archive_scanner_()
+{
+    local cur prev
+
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+
+    COMPREPLY=( $(compgen -W "$(_find_archived_scanner_versions_)" -- $cur) )
+    return 0
+}
+complete -F _find_archive_scanner_ s-installScanner.sh
+
+# Find repos of plugins
+_find_plugins_repos_()
+{
+    for dir in ~/Repos/*
+    do
+	if [ -d "$dir" ]
+        then
+	    case $dir in
+                *sonar-*)
+                    echo "$dir" | sed 's/.*sonar[^-]*-//'
+                    ;;
+            esac
+        fi
+    done
+}
+_find_plugins_()
+{
+    local cur prev
+
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+
+    COMPREPLY=( $(compgen -W "$(_find_plugins_repos_)" -- $cur) )
+    return 0
+}
+complete -F _find_plugins_ s-installSnapshotOfPlugin.sh
+complete -F _find_plugins_ s-installSnapshot.sh
