@@ -27,8 +27,8 @@ dlAndExtractStable() {
     fi
 
     echo "Dowloading $SONAR_NAME..." >&2
-    curl -L -# -o "$INSTALL_PATH/$SONAR_NAME.zip" "$URL"
-    unzip -q $INSTALL_PATH/$SONAR_NAME.zip -d "$SOFTWARE_FOLDER/SonarQube/"
+    curl -L -# -o "$INSTALL_PATH/ARCHIVES/$SONAR_NAME.zip" "$URL"
+    unzip -q $INSTALL_PATH/ARCHIVES/$SONAR_NAME.zip -d "$SOFTWARE_FOLDER/SonarQube/"
     echo "Distribution unzipped in '$SONAR_NAME'" >&2
     echo "done"
 }
@@ -46,8 +46,8 @@ dlAndExtractBuild() {
     fi
 
     echo "Dowloading $SONAR_NAME..." >&2
-    curl -L -# -o "$INSTALL_PATH/$SONAR_NAME.zip" "$URL"
-    unzip -q $INSTALL_PATH/$SONAR_NAME.zip -d "$SOFTWARE_FOLDER/SonarQube/"
+    curl -L -# -o "$INSTALL_PATH/ARCHIVES/$SONAR_NAME.zip" "$URL"
+    unzip -q $INSTALL_PATH/ARCHIVES/$SONAR_NAME.zip -d "$SOFTWARE_FOLDER/SonarQube/"
     echo "Distribution unzipped in 'sonarqube-$1'" >&2
     echo "done"
 }
@@ -57,29 +57,29 @@ echo "Install sonarqube"
 INSTALL_PATH=$SOFTWARE_FOLDER/SonarQube
 if [ -d "$INSTALL_PATH/sonarqube-$1" ]
 then
-    echo "Build already installed"
+    echo "Version already installed"
 else
     if [ -d "$INSTALL_PATH/sonarqube-$1" ]
     then
-        echo "Build already installed"
+        echo "Version already installed"
     else
 
-        if [ -f $INSTALL_PATH/sonarqube-$1.zip ]
+        if [ -f $INSTALL_PATH/ARCHIVES/sonarqube-$1.zip ]
         then
             echo "Local archive 'sonarqube-$1.zip' found"
-            unzip -q $INSTALL_PATH/sonarqube-$1.zip -d "$SOFTWARE_FOLDER/SonarQube/"
+            unzip -q $INSTALL_PATH/ARCHIVES/sonarqube-$1.zip -d "$SOFTWARE_FOLDER/SonarQube/"
             echo "Distribution unzipped in 'sonarqube-$1'"
         else
-            if [ -f $INSTALL_PATH/sonar-$1.zip ]
+            if [ -f $INSTALL_PATH/ARCHIVES/sonar-$1.zip ]
             then
                 echo "Local archive 'sonar-$1.zip' found"
-                unzip -q $INSTALL_PATH/sonar-$1.zip -d "$SOFTWARE_FOLDER/SonarQube/"
+                unzip -q $INSTALL_PATH/ARCHIVES/sonar-$1.zip -d "$SOFTWARE_FOLDER/SonarQube/"
                 echo "Distribution unzipped in 'sonar-$1'"
             else
-                if [ -f $INSTALL_PATH/sonar-application-$1.zip ]
+                if [ -f $INSTALL_PATH/ARCHIVES/sonar-application-$1.zip ]
                 then
                     echo "Local archive 'sonar-application-$1.zip' found"
-                    unzip -q $INSTALL_PATH/sonar-application-$1.zip -d "$SOFTWARE_FOLDER/SonarQube/"
+                    unzip -q $INSTALL_PATH/ARCHIVES/sonar-application-$1.zip -d "$SOFTWARE_FOLDER/SonarQube/"
                     echo "Distribution unzipped in 'sonarqube-$1'"
                 else
 

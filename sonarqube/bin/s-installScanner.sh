@@ -27,8 +27,8 @@ dlAndExtractStable() {
     fi
 
     echo "Dowloading $SONAR_SCANNER_NAME..." >&2
-    curl -L -# -o "$INSTALL_PATH/$SONAR_SCANNER_NAME.zip" "$URL"
-    unzip -q $INSTALL_PATH/$SONAR_SCANNER_NAME.zip -d "$SOFTWARE_FOLDER/SonarScanner/"
+    curl -L -# -o "$INSTALL_PATH/ARCHIVES/$SONAR_SCANNER_NAME.zip" "$URL"
+    unzip -q $INSTALL_PATH/ARCHIVES/$SONAR_SCANNER_NAME.zip -d "$SOFTWARE_FOLDER/SonarScanner/"
     echo "Distribution unzipped in '$SONAR_SCANNER_NAME'" >&2
     echo "done"
 }
@@ -46,8 +46,8 @@ dlAndExtractBuild() {
     fi
 
     echo "Dowloading $SONAR_SCANNER_NAME..." >&2
-    curl -L -# -o "$INSTALL_PATH/$SONAR_SCANNER_NAME.zip" "$URL"
-    unzip -q $INSTALL_PATH/$SONAR_SCANNER_NAME.zip -d "$SOFTWARE_FOLDER/SonarScanner/"
+    curl -L -# -o "$INSTALL_PATH/ARCHIVES/$SONAR_SCANNER_NAME.zip" "$URL"
+    unzip -q $INSTALL_PATH/ARCHIVES/$SONAR_SCANNER_NAME.zip -d "$SOFTWARE_FOLDER/SonarScanner/"
     echo "Distribution unzipped in 'sonar-scanner-$1'" >&2
     echo "done"
 }
@@ -57,13 +57,13 @@ echo "Install sonar-scanner"
 INSTALL_PATH=$SOFTWARE_FOLDER/SonarScanner
 if [ -d "$INSTALL_PATH/sonar-scanner-$1" ]
 then
-    echo "Build already installed"
+    echo "Version already installed"
 else
 
-    if [ -f $INSTALL_PATH/sonar-scanner-$1.zip ]
+    if [ -f $INSTALL_PATH/ARCHIVES/sonar-scanner-$1.zip ]
     then
         echo "Local archive 'sonar-scanner-$1.zip' found"
-        unzip -q $INSTALL_PATH/sonar-scanner-$1.zip -d "$SOFTWARE_FOLDER/SonarScanner/"
+        unzip -q $INSTALL_PATH/ARCHIVES/sonar-scanner-$1.zip -d "$SOFTWARE_FOLDER/SonarScanner/"
         echo "Distribution unzipped in 'sonar-scanner-$1'"
     else
 
