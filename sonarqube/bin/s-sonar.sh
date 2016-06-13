@@ -48,7 +48,7 @@ case "$1" in
                 if [ ! -f "$ORACLE_DRIVER" ]
                 then
                     echo "Copying oracle driver"
-                    cp $SOFTWARE_FOLDER/SonarQube/oracle/ojdbc6.jar $SONAR_CURRENT/extensions/jdbc-driver/oracle/
+                    cp $SOFTWARE_FOLDER/SonarQube/DRIVERS/oracle/ojdbc6.jar $SONAR_CURRENT/extensions/jdbc-driver/oracle/
                 fi
                 SONAR_O_JDBC_URL="jdbc:oracle:thin:@$SONAR_DB:1521/ORCL"
                 echo "sonar.jdbc.url=$SONAR_O_JDBC_URL" >> $SONAR_PROPERTIES_FILE
