@@ -22,6 +22,37 @@ case "$3" in
 esac
 
 SONAR_PROPERTIES_FILE=$SONAR_CURRENT/conf/sonar.properties
+GENER_START="# GENERATED START"
+GENER_END="# GENERATED END"
+
+cleanConfig () {
+    if [ ! -f "$SONAR_PROPERTIES_FILE.bak" ]
+    then
+        cp $SONAR_PROPERTIES_FILE $SONAR_PROPERTIES_FILE.bak
+        echo >> $SONAR_PROPERTIES_FILE
+    fi
+    sed -i "/$GENER_START/,/^$GENER_END/d" $SONAR_PROPERTIES_FILE
+}
+
+addConfig () {
+    echo "$GENER_START" >> $SONAR_PROPERTIES_FILE
+
+    # set DB url & port
+    if [ -n "$1" ]
+    then
+        echo "sonar.jdbc.url=$1" >> $SONAR_PROPERTIES_FILE
+    fi
+    if [ -n "$2" ]
+    then
+        echo "sonar.embeddedDatabase.port=$2" >> $SONAR_PROPERTIES_FILE
+    fi
+
+    # set DB credentials
+    echo "sonar.jdbc.username=sonar" >> $SONAR_PROPERTIES_FILE
+    echo "sonar.jdbc.password=sonar" >> $SONAR_PROPERTIES_FILE  
+
+    echo $GENER_END >> $SONAR_PROPERTIES_FILE
+}
 
 case "$1" in
     "start"|"stop"|"restart"|"status"|"dump")
@@ -29,17 +60,19 @@ case "$1" in
         ;;
 
     "reset")
+        cleanConfig
+
         # print out properties for the correct DB
         case "$2" in
             "-P")
                 echo "Use postgres on $SONAR_DB"
-                SONAR_P_JDBC_URL="jdbc:postgresql://$SONAR_DB:5432/sonar"
-                echo "sonar.jdbc.url=$SONAR_P_JDBC_URL" >> $SONAR_PROPERTIES_FILE
+                SONAR_JDBC_URL="jdbc:postgresql://$SONAR_DB:5432/sonar"
+                addConfig $SONAR_JDBC_URL
                 ;;
             "-M")
                 echo "Use mysql on $SONAR_DB"
-                SONAR_M_JDBC_URL="jdbc:mysql://$SONAR_DB:3306/sonar?autoReconnect=true&useUnicode=true&characterEncoding=utf8&useConfigs=maxPerformance"
-                echo "sonar.jdbc.url=$SONAR_M_JDBC_URL" >> $SONAR_PROPERTIES_FILE
+                SONAR_JDBC_URL="jdbc:mysql://$SONAR_DB:3306/sonar?autoReconnect=true&useUnicode=true&characterEncoding=utf8&useConfigs=maxPerformance"
+                addConfig $SONAR_JDBC_URL
                 ;;
             "-O")
                 echo "Use oracle on $SONAR_DB"
@@ -50,25 +83,20 @@ case "$1" in
                     echo "Copying oracle driver"
                     cp $SOFTWARE_FOLDER/SonarQube/DRIVERS/oracle/ojdbc6.jar $SONAR_CURRENT/extensions/jdbc-driver/oracle/
                 fi
-                SONAR_O_JDBC_URL="jdbc:oracle:thin:@$SONAR_DB:1521/ORCL"
-                echo "sonar.jdbc.url=$SONAR_O_JDBC_URL" >> $SONAR_PROPERTIES_FILE
+                SONAR_JDBC_URL="jdbc:oracle:thin:@$SONAR_DB:1521/ORCL"
+                addConfig $SONAR_JDBC_URL
                 ;;
             "-MS")
                 echo "Use MSsql on $SONAR_DB"
-                SONAR_MS_JDBC_URL="jdbc:jtds:sqlserver://$SONAR_DB/sonar;SelectMethod=Cursor"
-                echo "sonar.jdbc.url=$SONAR_MS_JDBC_URL" >> $SONAR_PROPERTIES_FILE
+                SONAR_JDBC_URL="jdbc:jtds:sqlserver://$SONAR_DB/sonar;SelectMethod=Cursor"
+                addConfig $SONAR_JDBC_URL
                 ;;
             *)
                 echo "Use local H2"
-                SONAR_H_JDBC_URL="jdbc:h2:tcp://$SONAR_DB:9092/sonar"
-                echo "sonar.jdbc.url=$SONAR_H_JDBC_URL" >> $SONAR_PROPERTIES_FILE
-                echo "sonar.embeddedDatabase.port=9092" >> $SONAR_PROPERTIES_FILE
+                SONAR_JDBC_URL="jdbc:h2:tcp://$SONAR_DB:9092/sonar"
+                addConfig $SONAR_JDBC_URL 9002
                 ;;
         esac
-
-        # set credentials
-        echo "sonar.jdbc.username=sonar" >> $SONAR_PROPERTIES_FILE
-        echo "sonar.jdbc.password=sonar" >> $SONAR_PROPERTIES_FILE  
 
         # clean temp data
         rm -rf $SONAR_CURRENT/data/*
