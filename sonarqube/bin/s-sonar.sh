@@ -9,6 +9,7 @@ usage() {
     echo "    -M start with mysql"
     echo "    -O start with oracle"
     echo "    -MS start with MSsql"
+    echo "    -H start with H2 (default)"
     exit 0
 }
 
@@ -91,10 +92,10 @@ case "$1" in
                 SONAR_JDBC_URL="jdbc:jtds:sqlserver://$SONAR_DB/sonar;SelectMethod=Cursor"
                 addConfig $SONAR_JDBC_URL
                 ;;
-            *)
+            "-H"|*)
                 echo "Use local H2"
                 SONAR_JDBC_URL="jdbc:h2:tcp://$SONAR_DB:9092/sonar"
-                addConfig $SONAR_JDBC_URL 9002
+                addConfig $SONAR_JDBC_URL 9092
                 ;;
         esac
 
