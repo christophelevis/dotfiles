@@ -10,11 +10,13 @@ export SONAR_CURRENT=$SOFTWARE_FOLDER/SonarQube/current
 export SONAR_NEXT_FILES=$SOFTWARE_FOLDER/SonarQube/SNAPSHOT
 export SONAR_NEXT=$SOFTWARE_FOLDER/SonarQube/sonarqube-next
 export PLUGINS_DEV=$SONAR_CURRENT/extensions/plugins
-alias s-next="cd $SONAR_NEXT"
+alias cdcurrent="cd $SONAR_CURRENT"
+alias cdnext="cd $SONAR_NEXT"
 
 export SONAR_SCANNER_CURRENT=$SOFTWARE_FOLDER/SonarScanner/current
 export SONAR_SCANNER_NEXT_FILES=$SOFTWARE_FOLDER/SonarScanner/SNAPSHOT
 export SONAR_SCANNER_NEXT=$SOFTWARE_FOLDER/SonarScanner/sonar-scanner-next
+alias cdscan="cd $SONAR_SCANNER_CURRENT"
 
 export PATH=$SONAR_SCANNER_CURRENT/bin:$PATH
 

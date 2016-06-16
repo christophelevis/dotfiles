@@ -32,12 +32,14 @@ alias h="history"
 # Git repositories location
 # ================================
 export REPOS=$HOME/Repos
-alias repos="cd $REPOS"
+alias cdrep="cd $REPOS"
+alias cddot="cd $REPOS/dotfiles"
 
 # ================================
 # Third-party software location
 # ================================
 export SOFTWARE_FOLDER=$HOME/Software
+alias cdsoft="cd $SOFTWARE_FOLDER"
 
 # ================================
 # Environment variables
