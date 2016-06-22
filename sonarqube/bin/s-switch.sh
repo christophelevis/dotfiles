@@ -14,7 +14,7 @@ case "$1" in
         ;;
     "snapshot")
         VERSION="SNAPSHOT"
-        CURRENT=$SONAR_NEXT
+        CURRENT=$(readlink $SONAR_NEXT)
         ;;
     *)
         if [ -d $SOFTWARE_FOLDER/SonarQube/sonarqube-$1 ] 
