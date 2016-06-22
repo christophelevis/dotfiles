@@ -18,7 +18,13 @@ export SONAR_SCANNER_NEXT_FILES=$SOFTWARE_FOLDER/SonarScanner/SNAPSHOT
 export SONAR_SCANNER_NEXT=$SOFTWARE_FOLDER/SonarScanner/sonar-scanner-next
 alias cdscan="cd $SONAR_SCANNER_CURRENT"
 
-export PATH=$SONAR_SCANNER_CURRENT/bin:$PATH
+export SONAR_LINT_CURRENT=$SOFTWARE_FOLDER/SonarLint/current
+export SONAR_LINT_NEXT_FILES=$SOFTWARE_FOLDER/SonarLint/SNAPSHOT
+export SONAR_LINT_NEXT=$SOFTWARE_FOLDER/SonarLint/sonar-lint-next
+export SONAR_LINT_CURRENT=$SOFTWARE_FOLDER/SonarLint/current
+alias cdlint="cd $SONAR_LINT_CURRENT"
+
+export PATH=$SONAR_LINT_CURRENT/bin:$SONAR_SCANNER_CURRENT/bin:$PATH
 
 # ================================
 # Completion of sonarqube/bin commands
