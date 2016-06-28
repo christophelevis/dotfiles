@@ -96,7 +96,7 @@ read -p "Are you sure? [n] " -n1
 echo ""
 case $REPLY in
     y|Y)
-        rm -r $DIR_LIST $FILE_LIST
+        rm -r $FILE_LIST $DIR_LIST
         echo "Done"
         ;;
     *)
