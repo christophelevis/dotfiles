@@ -38,6 +38,7 @@ _find_installed_versions_()
         then
 	    case $dir in
                 *sonarqube-next)
+                    echo "snapshot"
                     ;;
                 *sonar*-*)
                     echo "$dir" | sed 's/.*sonar[^-]*-//'
@@ -94,6 +95,7 @@ _find_installed_scanner_versions_()
         then
 	    case $dir in
                 *sonar-scanner-next)
+                    echo "snapshot"
                     ;;
                 *sonar-scanner*-*)
                     echo "$dir" | sed 's/.*sonar-scanner[^-]*-//'
