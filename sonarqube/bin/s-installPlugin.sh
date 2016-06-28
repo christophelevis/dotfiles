@@ -36,14 +36,21 @@ esac
 
 dlAndExtractStable() {
     PLUGIN_NAME="sonar-$1-plugin"
-    echo "Trying $PLUGIN_NAME-$2 on bintray..." >&2
+    echo "Trying $PLUGIN_NAME-$2 on bintray (distribution)..." >&2
     URL="https://sonarsource.bintray.com/Distribution/$PLUGIN_NAME/$PLUGIN_NAME-$2.jar"
 
     HTTP_CODE=$(curl --write-out '%{http_code}' --silent --output /dev/null --head "$URL")
     if [ ! "$HTTP_CODE" = "200" ]  
     then
-        echo "error"
-        return
+        echo "Trying $PLUGIN_NAME-$2 on bintray (commercial distribution)..." >&2
+        URL="https://sonarsource.bintray.com/CommercialDistribution/$PLUGIN_NAME/$PLUGIN_NAME-$2.jar"
+
+        HTTP_CODE=$(curl --write-out '%{http_code}' --silent --output /dev/null --head "$URL")
+        if [ ! "$HTTP_CODE" = "200" ]  
+        then
+            echo "error"
+            return
+        fi
     fi
 
     echo "Dowloading $PLUGIN_NAME-$2..." >&2
