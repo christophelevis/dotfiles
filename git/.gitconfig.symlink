@@ -61,7 +61,7 @@
   email = christophe.levis@sonarsource.com
 
 [github]
-  user = bellingard
+  user = christophelevis
   token = $GITHUB_TOKEN
 
 # commands will be autocorrect (rset -> reset)
