@@ -38,6 +38,9 @@ cleanConfig () {
 addConfig () {
     echo "$GENER_START" >> $SONAR_PROPERTIES_FILE
 
+    # Configure dev update center
+    echo "sonar.updatecenter.url=http://update.sonarsource.org/update-center-dev.properties" >> $SONAR_PROPERTIES_FILE
+
     # set DB url & port
     if [ -n "$1" ]
     then

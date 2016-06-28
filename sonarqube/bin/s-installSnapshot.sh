@@ -39,10 +39,6 @@ ln -s $SONAR_NEXT_FILES/INSTALL/sonarqube-$SONAR_VERSION-SNAPSHOT $SONAR_NEXT
 rm $SONAR_CURRENT
 ln -s $SONAR_NEXT_FILES/INSTALL/sonarqube-$SONAR_VERSION-SNAPSHOT $SONAR_CURRENT
 
-# Configure dev update center
-echo "Configure sonarqube with dev update center"
-echo "\n\nsonar.updatecenter.url=http://update.sonarsource.org/update-center-dev.properties" >> $SONAR_NEXT/conf/sonar.properties
-
 # Restore backup plugins
 echo "Restore plugins if any"
 if [ "$(ls -A $SONAR_NEXT_FILES/BACKUP/)" ]
