@@ -1,4 +1,4 @@
-#!/bin/bash
+
 
 # Add bin folder to PATH
 export PATH=$DOTFILES/sonarqube/bin:$PATH
@@ -10,7 +10,7 @@ export SONAR_CURRENT=$SOFTWARE_FOLDER/SonarQube/current
 export SONAR_NEXT_FILES=$SOFTWARE_FOLDER/SonarQube/SNAPSHOT
 export SONAR_NEXT=$SOFTWARE_FOLDER/SonarQube/sonarqube-next
 export PLUGINS_DEV=$SONAR_CURRENT/extensions/plugins
-alias cdcurrent="cd $SONAR_CURRENT"
+alias cdcurr="cd $SONAR_CURRENT"
 alias cdnext="cd $SONAR_NEXT"
 
 export SONAR_SCANNER_CURRENT=$SOFTWARE_FOLDER/SonarScanner/current
@@ -180,10 +180,10 @@ _find_archived_plugin_versions_()
         then
 	    case $file in
                 *sonar-*-plugin-*.jar)
-                    echo "$file" | sed 's/.*sonar[^-]*-//' | sed 's/-plugin//' | sed 's/\.jar//' | sed 's/-/_/'
+                    echo "$file" | sed 's/.*sonar[^-]*-//' | sed 's/-plugin//' | sed 's/\.jar//'
                     ;;
                 *-extension-plugin-*.jar)
-                    echo "$file" | sed 's/.*\///' | sed 's/extension-plugin-//' | sed 's/\.jar//' | sed 's/-/_/'
+                    echo "$file" | sed 's/.*\///' | sed 's/extension-plugin-//' | sed 's/\.jar//'
                     ;;
             esac
         fi
@@ -200,4 +200,34 @@ _find_archive_plugin_()
     return 0
 }
 complete -F _find_archive_plugin_ s-installPlugin.sh
+
+# Find installed versions of lint
+_find_installed_lint_versions_()
+{
+    for dir in ~/Software/SonarLint/*
+    do
+	if [ -d "$dir" ]
+        then
+	    case $dir in
+                *sonarlint-cli-next)
+                    echo "snapshot"
+                    ;;
+                *sonarlint-cli*-*)
+                    echo "$dir" | sed 's/.*sonarlint-cli-//'
+                    ;;
+            esac
+        fi
+    done
+}
+_find_install_lint_()
+{
+    local cur prev
+
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+
+    COMPREPLY=( $(compgen -W "$(_find_installed_lint_versions_)" -- $cur) )
+    return 0
+}
+complete -F _find_install_lint_ s-switchLint.sh
 
