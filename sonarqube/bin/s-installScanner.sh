@@ -15,7 +15,7 @@ case "$1" in
 esac
 
 dlAndExtractStable() {
-    SONAR_SCANNER_NAME=$1
+    SONAR_SCANNER_NAME="sonar-scanner-$1"
     echo "Trying $SONAR_SCANNER_NAME on bintray..." >&2
     URL="https://sonarsource.bintray.com/Distribution/sonar-scanner-cli/$SONAR_SCANNER_NAME.zip"
 
@@ -78,7 +78,7 @@ else
             ;;
             
         *)
-            ret=$(dlAndExtractStable sonar-scanner-$1)
+            ret=$(dlAndExtractStable $1)
             if [ ! "$ret" = "done" ]
             then
                 echo "Version not found!"

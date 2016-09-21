@@ -14,7 +14,7 @@ case "$1" in
         ;;
     "snapshot")
         VERSION="SNAPSHOT"
-        CURRENT=$SONAR_NEXT
+        CURRENT=$(readlink $SONAR_SCANNER_NEXT)
         ;;
     *)
         if [ -d $SOFTWARE_FOLDER/SonarScanner/sonar-scanner-$1 ] 
@@ -33,5 +33,5 @@ if [ -n "$VERSION" ]
 then
     rm $SONAR_SCANNER_CURRENT
     ln -s $CURRENT $SONAR_SCANNER_CURRENT
-    echo "Sonarscanner $VERSION configured as current installation"
+    echo "SonarScanner $VERSION configured as current installation"
 fi
