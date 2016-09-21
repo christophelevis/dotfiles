@@ -4,7 +4,7 @@
 # set -e
 
 usage() {
-        echo "Usage: `basename $0` [PLUGIN_VERSION] | [PLUGIN] [VERSION]"
+        echo "Usage: `basename $0` [PLUGIN] [VERSION]"
         echo "    PLUGIN:"
         echo "        java"
         echo "        javascript"
@@ -16,10 +16,6 @@ usage() {
 }
 
 case "$1" in 
-    *_*)
-	PLUGIN=$(echo "$1" | sed 's/_.*//')
-	VERSION=$(echo "$1" | sed 's/.*_//')
-        ;;
     ""|-h|--h|*-help)
         usage
         ;;
