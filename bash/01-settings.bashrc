@@ -55,11 +55,11 @@ export MAVEN_HOME=M2_HOME
 export PATH=$M2_HOME/bin:$PATH
 
 # Groovy
-# export GROOVY_HOME=$SOFTWARE_FOLDER/Groovy/current
+export GROOVY_HOME=$SOFTWARE_FOLDER/Groovy/current
 # Ant
-# export ANT_HOME=$SOFTWARE_FOLDER/Ant/current
+export ANT_HOME=$SOFTWARE_FOLDER/Ant/current
 # Gradle
-# export GRADLE_HOME=$SOFTWARE_FOLDER/Gradle/current
-# export GRADLE_OPTS="-Xmx1024M -XX:MaxPermSize=256M"
+export GRADLE_HOME=$SOFTWARE_FOLDER/Gradle/current
+export GRADLE_OPTS="-Xmx1024M -XX:MaxPermSize=256M"
 # Add all the tools to the PATH
-# export PATH=$GROOVY_HOME/bin:$ANT_HOME/bin:GRADLE_HOME/bin$PATH
+export PATH=$GROOVY_HOME/bin:$ANT_HOME/bin:$GRADLE_HOME/bin:$PATH
