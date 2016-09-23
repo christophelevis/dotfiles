@@ -78,7 +78,7 @@ do
     if [ -f "$file" ]
     then
         case $file in
-            *-extension-plugin-*-build*.jar)
+            *-plugin-*-build*.jar)
 		FILE_LIST="$FILE_LIST $file"
                 echo "# $file"
                 ;;
