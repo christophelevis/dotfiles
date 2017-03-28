@@ -2,11 +2,11 @@
 
 setLicenseOldProduct() {
   LICENSE=`more $REPOS/licenses/it/$1.txt | tr -d '\r\n'`
-  curl -s -u admin:admin -X POST "http://localhost:9001/api/properties?id=$1.license.secured&value=$LICENSE"
+  curl -s -u admin:admin -X POST "http://10.0.2.11:9001/api/properties?id=$1.license.secured&value=$LICENSE"
 }
 setLicense() {
   LICENSE=`more $REPOS/licenses/it/$1.txt | tr -d '\r\n'`
-  curl -s -u admin:admin -X POST "http://localhost:9001/api/properties?id=sonar.$1.license.secured&value=$LICENSE"
+  curl -s -u admin:admin -X POST "http://10.0.2.11:9001/api/properties?id=sonar.$1.license.secured&value=$LICENSE"
 }
 
 setLicenseOldProduct "views"

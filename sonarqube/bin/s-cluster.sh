@@ -4,7 +4,7 @@
 set -e
  
 usage() {
-    echo "Usage: `basename $0` [start] [stop] [status] [dump] [reset (-P|M|O|MS) (host)]"
+    echo "Usage: `basename $0` [start|stop|status|dump (all|1|2|3)] [reset (all|1|2|3) (-P|M|O|MS) (host)]"
     echo "    -P start with postgres"
     echo "    -M start with mysql"
     echo "    -O start with oracle"
@@ -13,18 +13,16 @@ usage() {
     exit 0
 }
 
-case "$3" in 
+case "$4" in 
     "")
         SONAR_DB="localhost"
         ;;
     *)
-        SONAR_DB="$3"
+        SONAR_DB="$4"
         ;;
 esac
 
-INSTANCE_ES=$(readlink $SONAR_CURRENT)-es
-INSTANCE_CEWEB_1=$(readlink $SONAR_CURRENT)-ceweb1
-INSTANCE_CEWEB_2=$(readlink $SONAR_CURRENT)-ceweb2
+INSTANCE_NODE=$(readlink $SONAR_CURRENT)-NODE
 
 SONAR_PROPERTIES_FILE=conf/sonar.properties
 GENER_START="# GENERATED START"
@@ -40,24 +38,24 @@ cleanConfig () {
 }
 
 removeCluster () {
-    if [ -d "$INSTANCE_ES" ]
+    if [ -d "${INSTANCE_NODE}1" ]
     then
-        rm -rf $INSTANCE_ES
+        rm -rf ${INSTANCE_NODE}1
     fi
-    if [ -d "$INSTANCE_CEWEB_1" ]
+    if [ -d "${INSTANCE_NODE}2" ]
     then
-        rm -rf $INSTANCE_CEWEB_1
+        rm -rf ${INSTANCE_NODE}2
     fi
-    if [ -d "$INSTANCE_CEWEB_2" ]
+    if [ -d "${INSTANCE_NODE}3" ]
     then
-        rm -rf $INSTANCE_CEWEB_2
+        rm -rf ${INSTANCE_NODE}3
     fi
 }
 
 prepareCluster () {
-    cp -r $(readlink $SONAR_CURRENT) $INSTANCE_ES
-    cp -r $(readlink $SONAR_CURRENT) $INSTANCE_CEWEB_1
-    cp -r $(readlink $SONAR_CURRENT) $INSTANCE_CEWEB_2
+    cp -r $(readlink $SONAR_CURRENT) ${INSTANCE_NODE}1
+    cp -r $(readlink $SONAR_CURRENT) ${INSTANCE_NODE}2
+    cp -r $(readlink $SONAR_CURRENT) ${INSTANCE_NODE}3
 }
 
 addConfig () {
@@ -86,56 +84,37 @@ addConfig () {
     echo $GENER_END >> $1/$SONAR_PROPERTIES_FILE
 }
 
-waitProcessUp () {
-	TMP_LOGS=/tmp/tmplogs.$$
-	mkfifo "${TMP_LOGS}"
-	tail -f $1/logs/sonar.log > ${TMP_LOGS} &
-	TAIL_PID=$!
-	grep -m 1 -e "Process\[$2\] is up" "${TMP_LOGS}"
-	kill "${TAIL_PID}"
-	rm ${TMP_LOGS}
-}
+#waitProcessUp () {
+#	TMP_LOGS=/tmp/tmplogs.$$
+#	mkfifo "${TMP_LOGS}"
+#	tail -f $1/logs/sonar.log > ${TMP_LOGS} &
+#	TAIL_PID=$!
+#	grep -m 1 -e "Process\[$2\] is up" "${TMP_LOGS}"
+#	kill "${TAIL_PID}"
+#	rm ${TMP_LOGS}
+#}
 
-addConfigES () {
-    echo "$GENER_START" >> $1/$SONAR_PROPERTIES_FILE
-
-    # set ES url & port
-    echo "sonar.search.host=127.0.0.1" >> $1/$SONAR_PROPERTIES_FILE
-    echo "sonar.search.port=9010" >> $1/$SONAR_PROPERTIES_FILE
-
-    echo "sonar.cluster.enabled=true" >> $1/$SONAR_PROPERTIES_FILE
-    echo "sonar.cluster.search.disabled=false" >> $1/$SONAR_PROPERTIES_FILE
-    echo "sonar.cluster.ce.disabled=true" >> $1/$SONAR_PROPERTIES_FILE
-    echo "sonar.cluster.web.disabled=true" >> $1/$SONAR_PROPERTIES_FILE
-    echo "sonar.cluster.web.startupLeader=false" >> $1/$SONAR_PROPERTIES_FILE
-    echo "sonar.cluster.search.hosts=127.0.0.1:9010" >> $1/$SONAR_PROPERTIES_FILE
-
-    echo $GENER_END >> $1/$SONAR_PROPERTIES_FILE
-}
-
-addConfigCEWEB() {
+addConfigNODE() {
     echo "$GENER_START" >> $1/$SONAR_PROPERTIES_FILE
 
     # set WEB url & port
-    # echo "sonar.web.host=127.0.0.1" >> $1/$SONAR_PROPERTIES_FILE
-    if [ -n "$2" ]
-    then
-        echo "sonar.web.port=$2" >> $1/$SONAR_PROPERTIES_FILE
-    fi
+    # echo "sonar.web.host=" >> $2/$SONAR_PROPERTIES_FILE
+    echo "sonar.web.port=$3" >> $1/$SONAR_PROPERTIES_FILE
+
+    # set ES url & port
+    echo "sonar.search.host=$2" >> $1/$SONAR_PROPERTIES_FILE
+    echo "sonar.search.port=$4" >> $1/$SONAR_PROPERTIES_FILE
 
     echo "sonar.cluster.enabled=true" >> $1/$SONAR_PROPERTIES_FILE
-    echo "sonar.cluster.search.disabled=true" >> $1/$SONAR_PROPERTIES_FILE
+    echo "sonar.cluster.search.disabled=false" >> $1/$SONAR_PROPERTIES_FILE
     echo "sonar.cluster.ce.disabled=false" >> $1/$SONAR_PROPERTIES_FILE
     echo "sonar.cluster.web.disabled=false" >> $1/$SONAR_PROPERTIES_FILE
-    case "$3" in
-        "start")
-            echo "sonar.cluster.web.startupLeader=true" >> $1/$SONAR_PROPERTIES_FILE
-            ;;
-        *)
-            echo "sonar.cluster.web.startupLeader=false" >> $1/$SONAR_PROPERTIES_FILE
-            ;;
-    esac
-    echo "sonar.cluster.search.hosts=127.0.0.1:9010" >> $1/$SONAR_PROPERTIES_FILE
+    echo "sonar.cluster.search.hosts=$5" >> $1/$SONAR_PROPERTIES_FILE
+
+    echo "sonar.cluster.name=test_cluster" >> $1/$SONAR_PROPERTIES_FILE
+    echo "sonar.cluster.port=$6" >> $1/$SONAR_PROPERTIES_FILE
+    echo "sonar.cluster.hosts=$7" >> $1/$SONAR_PROPERTIES_FILE
+    #echo "sonar.cluster.networkInterfaces=eth0" >> $1/$SONAR_PROPERTIES_FILE
 
     # enable DEBUG logs
     # echo "sonar.log.level=DEBUG" >> $1/$SONAR_PROPERTIES_FILE
@@ -144,33 +123,35 @@ addConfigCEWEB() {
 }
 
 case "$1" in
-    "start")
-	echo "Starting es node"
-	$INSTANCE_ES/bin/$SONAR_WRAPPER_FOLDER/sonar.sh $1
-	waitProcessUp $INSTANCE_ES "es"
-	echo "Starting ceweb1 node"
-	$INSTANCE_CEWEB_1/bin/$SONAR_WRAPPER_FOLDER/sonar.sh $1
-	waitProcessUp $INSTANCE_CEWEB_1 "ce"
-	echo "Copy plugins from ceweb1 to ceweb2"
-	cp $INSTANCE_CEWEB_1/extensions/plugins/* $INSTANCE_CEWEB_2/extensions/plugins/
-	echo "Starting ceweb2 node"
-	$INSTANCE_CEWEB_2/bin/$SONAR_WRAPPER_FOLDER/sonar.sh $1
-	waitProcessUp $INSTANCE_CEWEB_2 "ce"
-	echo "Cluster started!"
-        ;;
-
-    "stop"|"status"|"dump")
-	$INSTANCE_ES/bin/$SONAR_WRAPPER_FOLDER/sonar.sh $1
-	$INSTANCE_CEWEB_1/bin/$SONAR_WRAPPER_FOLDER/sonar.sh $1
-	$INSTANCE_CEWEB_2/bin/$SONAR_WRAPPER_FOLDER/sonar.sh $1
+    "start"|"stop"|"status"|"dump")
+        case "$2" in
+            all)
+	        ${INSTANCE_NODE}1/bin/$SONAR_WRAPPER_FOLDER/sonar.sh $1
+	        ${INSTANCE_NODE}2/bin/$SONAR_WRAPPER_FOLDER/sonar.sh $1
+        	${INSTANCE_NODE}3/bin/$SONAR_WRAPPER_FOLDER/sonar.sh $1
+                ;;
+            1|2|3)
+        	${INSTANCE_NODE}$2/bin/$SONAR_WRAPPER_FOLDER/sonar.sh $1
+	        ;;
+            *)
+                usage
+	        ;;
+        esac
         ;;
 
     "reset")
+	PLUGINS=$(ls -A "$SONAR_CURRENT/extensions/plugins/")
+        if [ "$PLUGINS" = "README.txt" ]
+        then
+            echo "Run SonarQube in standalone mode first!"
+            exit 1
+        fi
+
 	removeCluster
         cleanConfig $SONAR_CURRENT
 
         # print out properties for the correct DB
-        case "$2" in
+        case "$3" in
             "-P")
                 echo "Use postgres on $SONAR_DB"
                 SONAR_JDBC_URL="jdbc:postgresql://$SONAR_DB:5432/sonar"
@@ -209,11 +190,44 @@ case "$1" in
         rm -rf $SONAR_CURRENT/data/*
         rm -rf $SONAR_CURRENT/logs/*
 
-	prepareCluster
-        addConfigES $INSTANCE_ES
-        addConfigCEWEB $INSTANCE_CEWEB_1 9001 start
-        addConfigCEWEB $INSTANCE_CEWEB_2 9002
-	;;
+	NODE1_IP="10.0.2.11"
+	NODE2_IP="10.0.2.12"
+	NODE3_IP="10.0.2.13"
+
+	NODE1_WEB_PORT="9001"
+	NODE2_WEB_PORT="9002"
+	NODE3_WEB_PORT="9003"
+
+	NODE1_SEARCH_PORT="9011"
+	NODE2_SEARCH_PORT="9012"
+	NODE3_SEARCH_PORT="9013"
+
+	NODE_CLUSTER_SEARCH_IPS="$NODE1_IP:$NODE1_SEARCH_PORT,$NODE2_IP:$NODE2_SEARCH_PORT,$NODE3_IP:$NODE3_SEARCH_PORT"
+
+	NODE1_CLUSTER_PORT="9051"
+	NODE2_CLUSTER_PORT="9052"
+	NODE3_CLUSTER_PORT="9053"
+
+	NODE_CLUSTER_IPS="$NODE1_IP:$NODE1_CLUSTER_PORT,$NODE2_IP:$NODE2_CLUSTER_PORT,$NODE3_IP:$NODE3_CLUSTER_PORT"
+
+        case "$2" in
+            all)
+		NODE_IP="10.0.2.11"
+		NODE_CLUSTER_SEARCH_IPS="$NODE_IP:$NODE1_SEARCH_PORT,$NODE_IP:$NODE2_SEARCH_PORT,$NODE_IP:$NODE3_SEARCH_PORT"
+		NODE_CLUSTER_IPS="$NODE_IP:$NODE1_CLUSTER_PORT,$NODE_IP:$NODE2_CLUSTER_PORT,$NODE_IP:$NODE3_CLUSTER_PORT"
+
+	        prepareCluster
+
+                addConfigNODE ${INSTANCE_NODE}1 $NODE_IP $NODE1_WEB_PORT $NODE1_SEARCH_PORT $NODE_CLUSTER_SEARCH_IPS $NODE1_CLUSTER_PORT $NODE_CLUSTER_IPS
+                addConfigNODE ${INSTANCE_NODE}2 $NODE_IP $NODE2_WEB_PORT $NODE2_SEARCH_PORT $NODE_CLUSTER_SEARCH_IPS $NODE2_CLUSTER_PORT $NODE_CLUSTER_IPS
+                addConfigNODE ${INSTANCE_NODE}3 $NODE_IP $NODE3_WEB_PORT $NODE3_SEARCH_PORT $NODE_CLUSTER_SEARCH_IPS $NODE3_CLUSTER_PORT $NODE_CLUSTER_IPS
+	        ;;
+
+            1|2|3)
+                addConfigNODE ${INSTANCE_NODE}$2 $NODE1_IP $NODE1_WEB_PORT $NODE1_SEARCH_PORT $NODE_CLUSTER_SEARCH_IPS $NODE1_CLUSTER_PORT $NODE_CLUSTER_IPS
+	        ;;
+        esac
+        ;;
 
     *)
         usage
