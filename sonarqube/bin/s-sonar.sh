@@ -92,7 +92,20 @@ case "$1" in
                 ;;
             "-MS")
                 echo "Use MSsql on $SONAR_DB"
-                SONAR_JDBC_URL="jdbc:jtds:sqlserver://$SONAR_DB/sonar;SelectMethod=Cursor"
+                # copy the driver if it does not exist
+                MSSQL_DRIVER_DIR="$SONAR_CURRENT/extensions/jdbc-driver/mssql"
+                MSSQL_DRIVER="$MSSQL_DRIVER/sqljdbc4.jar"
+                if [ ! -f "$MSSQL_DRIVER" ]
+                then
+                    echo "Copying MSsql driver"
+                    if [ ! -d "$MSSQL_DRIVER_DIR" ]
+                    then
+                        mkdir $MSSQL_DRIVER_DIR
+                    fi
+                    cp $SOFTWARE_FOLDER/SonarQube/DRIVERS/mssql/sqljdbc4.jar $SONAR_CURRENT/extensions/jdbc-driver/mssql/
+                fi
+                # SONAR_JDBC_URL="jdbc:jtds:sqlserver://$SONAR_DB/sonar;SelectMethod=Cursor"
+                SONAR_JDBC_URL="jdbc:sqlserver://$SONAR_DB;databaseName=sonar"
                 addConfig $SONAR_JDBC_URL
                 ;;
             "-H"|*)
