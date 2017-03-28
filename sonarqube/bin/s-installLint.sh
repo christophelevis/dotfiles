@@ -26,7 +26,7 @@ dlAndExtractStable() {
         return
     fi
 
-    echo "Dowloading $SONAR_LINT_NAME..." >&2
+    echo "Downloading $SONAR_LINT_NAME..." >&2
     curl -L -# -o "$INSTALL_PATH/ARCHIVES/$SONAR_LINT_NAME.zip" "$URL"
     unzip -q $INSTALL_PATH/ARCHIVES/$SONAR_LINT_NAME.zip -d "$SOFTWARE_FOLDER/SonarLint/"
     echo "Distribution unzipped in '$SONAR_LINT_NAME'" >&2
@@ -45,7 +45,7 @@ dlAndExtractBuild() {
         return
     fi
 
-    echo "Dowloading $SONAR_LINT_NAME..." >&2
+    echo "Downloading $SONAR_LINT_NAME..." >&2
     curl -L -# -o "$INSTALL_PATH/ARCHIVES/$SONAR_LINT_NAME.zip" "$URL"
     unzip -q $INSTALL_PATH/ARCHIVES/$SONAR_LINT_NAME.zip -d "$SOFTWARE_FOLDER/SonarLint/"
     echo "Distribution unzipped in 'sonarlint-$1'" >&2

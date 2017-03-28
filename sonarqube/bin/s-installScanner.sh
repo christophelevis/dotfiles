@@ -26,7 +26,7 @@ dlAndExtractStable() {
         return
     fi
 
-    echo "Dowloading $SONAR_SCANNER_NAME..." >&2
+    echo "Downloading $SONAR_SCANNER_NAME..." >&2
     curl -L -# -o "$INSTALL_PATH/ARCHIVES/$SONAR_SCANNER_NAME.zip" "$URL"
     unzip -q $INSTALL_PATH/ARCHIVES/$SONAR_SCANNER_NAME.zip -d "$SOFTWARE_FOLDER/SonarScanner/"
     echo "Distribution unzipped in '$SONAR_SCANNER_NAME'" >&2
@@ -45,7 +45,7 @@ dlAndExtractBuild() {
         return
     fi
 
-    echo "Dowloading $SONAR_SCANNER_NAME..." >&2
+    echo "Downloading $SONAR_SCANNER_NAME..." >&2
     curl -L -# -o "$INSTALL_PATH/ARCHIVES/$SONAR_SCANNER_NAME.zip" "$URL"
     unzip -q $INSTALL_PATH/ARCHIVES/$SONAR_SCANNER_NAME.zip -d "$SOFTWARE_FOLDER/SonarScanner/"
     echo "Distribution unzipped in 'sonar-scanner-$1'" >&2

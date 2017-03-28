@@ -49,7 +49,7 @@ dlAndExtractStable() {
         fi
     fi
 
-    echo "Dowloading $PLUGIN_NAME-$2..." >&2
+    echo "Downloading $PLUGIN_NAME-$2..." >&2
     curl -L -# -o "$INSTALL_PATH/ARCHIVES/$PLUGIN_NAME-$2.jar" "$URL"
     cp $INSTALL_PATH/ARCHIVES/$PLUGIN_NAME-$2.jar $SONAR_CURRENT/extensions/plugins/
     echo "Plugin '$PLUGIN_NAME-$2' copied" >&2
@@ -69,7 +69,7 @@ dlAndExtractBuild() {
         return
     fi
 
-    echo "Dowloading $PLUGIN_NAME-$2..." >&2
+    echo "Downloading $PLUGIN_NAME-$2..." >&2
     curl -L -# -o "$INSTALL_PATH/ARCHIVES/$PLUGIN_NAME-$2.jar" "$URL"
     cp $INSTALL_PATH/ARCHIVES/$PLUGIN_NAME-$2.jar $SONAR_CURRENT/extensions/plugins/$DEPLOY_NAME.jar
     echo "Plugin '$DEPLOY_NAME' copied" >&2
