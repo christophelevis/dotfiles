@@ -4,7 +4,7 @@
 set -e
  
 usage() {
-    echo "Usage: `basename $0` [start|stop|status|dump (all|1|2|3)] [reset (all|1|2|3) (-P|M|O|MS) (host)]"
+    echo "Usage: `basename $0` [start|stop|status|dump (all|1|2|3)] [reset (all|1|2|3) (-P|M|O|MS) (host)] [clean]"
     echo "    -P start with postgres"
     echo "    -M start with mysql"
     echo "    -O start with oracle"
@@ -140,6 +140,14 @@ case "$1" in
         ;;
 
     "reset")
+	case "$2" in
+	    all|1|2|3)
+		;;
+	    *)
+		usage
+		;;
+	esac
+
 	PLUGINS=$(ls -A "$SONAR_CURRENT/extensions/plugins/")
         if [ "$PLUGINS" = "README.txt" ]
         then
@@ -227,6 +235,15 @@ case "$1" in
                 addConfigNODE ${INSTANCE_NODE}$2 $NODE1_IP $NODE1_WEB_PORT $NODE1_SEARCH_PORT $NODE_CLUSTER_SEARCH_IPS $NODE1_CLUSTER_PORT $NODE_CLUSTER_IPS
 	        ;;
         esac
+        ;;
+
+    "clean")
+	removeCluster
+        cleanConfig $SONAR_CURRENT
+
+        # clean temp data
+        rm -rf $SONAR_CURRENT/data/*
+        rm -rf $SONAR_CURRENT/logs/*
         ;;
 
     *)
