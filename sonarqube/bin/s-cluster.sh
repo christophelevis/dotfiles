@@ -53,9 +53,7 @@ removeCluster () {
 }
 
 prepareCluster () {
-    cp -r $(readlink $SONAR_CURRENT) ${INSTANCE_NODE}1
-    cp -r $(readlink $SONAR_CURRENT) ${INSTANCE_NODE}2
-    cp -r $(readlink $SONAR_CURRENT) ${INSTANCE_NODE}3
+    cp -r $(readlink $SONAR_CURRENT) ${INSTANCE_NODE}$1
 }
 
 addConfig () {
@@ -224,7 +222,9 @@ case "$1" in
 		NODE_CLUSTER_SEARCH_IPS="$NODE_IP:$NODE1_SEARCH_PORT,$NODE_IP:$NODE2_SEARCH_PORT,$NODE_IP:$NODE3_SEARCH_PORT"
 		NODE_CLUSTER_IPS="$NODE_IP:$NODE1_CLUSTER_PORT,$NODE_IP:$NODE2_CLUSTER_PORT,$NODE_IP:$NODE3_CLUSTER_PORT"
 
-	        prepareCluster
+	        prepareCluster 1
+	        prepareCluster 2
+	        prepareCluster 3
 
                 addConfigNODE ${INSTANCE_NODE}1 $NODE_IP $NODE1_WEB_PORT $NODE1_SEARCH_PORT $NODE_CLUSTER_SEARCH_IPS $NODE1_CLUSTER_PORT $NODE_CLUSTER_IPS
                 addConfigNODE ${INSTANCE_NODE}2 $NODE_IP $NODE2_WEB_PORT $NODE2_SEARCH_PORT $NODE_CLUSTER_SEARCH_IPS $NODE2_CLUSTER_PORT $NODE_CLUSTER_IPS
@@ -232,6 +232,8 @@ case "$1" in
 	        ;;
 
             1|2|3)
+	        prepareCluster $2
+
                 addConfigNODE ${INSTANCE_NODE}$2 $NODE1_IP $NODE1_WEB_PORT $NODE1_SEARCH_PORT $NODE_CLUSTER_SEARCH_IPS $NODE1_CLUSTER_PORT $NODE_CLUSTER_IPS
 	        ;;
         esac
