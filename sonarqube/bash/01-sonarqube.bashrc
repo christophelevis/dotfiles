@@ -73,6 +73,7 @@ _find_archived_versions_()
             esac
         fi
     done
+    echo "latest"
 }
 _find_archive_()
 {
