@@ -23,7 +23,7 @@ case "$1" in
                 BRANCH="branch-$2"
                 ;;
         esac
-	LATEST=$(curl --silent "http://burgr.internal.sonarsource.com/api/commitPipelinesStages?project=SonarSource/sonarqube&branch=$BRANCH&nbOfCommits=50" | jq '[.[].pipelines[] | select(.stages[].type == "promotion")] | .[0]')
+	LATEST=$(curl --silent "https://$BURGRX_USER:$BURGRX_PASS@burgrx.sonarsource.com/api/commitPipelinesStages?project=SonarSource/sonarqube&branch=$BRANCH&nbOfCommits=50" | jq '[.[].pipelines[] | select(.stages[].type == "promotion")] | .[0]')
         if [ "$LATEST" = "null" ]
         then
             echo "No build found for branch '$BRANCH'!"
