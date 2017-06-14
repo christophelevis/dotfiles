@@ -52,7 +52,7 @@ dlAndExtractStable() {
 
     echo "Downloading $SONAR_NAME..." >&2
     curl -L -# -o "$INSTALL_PATH/ARCHIVES/$SONAR_NAME.zip" "$URL"
-    unzip -q $INSTALL_PATH/ARCHIVES/$SONAR_NAME.zip -d "$SOFTWARE_FOLDER/SonarQube/$SONAR_NAME"
+    unzip -q $INSTALL_PATH/ARCHIVES/$SONAR_NAME.zip -d "$SOFTWARE_FOLDER/SonarQube/"
     echo "Distribution unzipped in '$SONAR_NAME'" >&2
     echo "done"
 }
