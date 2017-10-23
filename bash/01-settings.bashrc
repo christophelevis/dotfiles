@@ -16,10 +16,11 @@ HISTFILESIZE=3000
 IGNOREEOF=1
 
 # Default language
-export LC_ALL=C
+export LC_ALL="en_US.UTF-8"
 
 # Enhance PATH to make sure that /usr/local/bin is used before /usr/bin
 export PATH=/usr/local/bin:$PATH
+
 
 # ================================
 # General aliases
