@@ -16,6 +16,7 @@ setLicense "devcockpit"
 setLicense "governance"
 
 # some language plugins too
+setLicenseOldProduct "cpp"
 setLicense "cpp"
 
 # -----------------------------------------------------------------------------
