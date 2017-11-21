@@ -11,6 +11,7 @@ case "$1" in
         echo "        X.Y-RC*"
         echo "        X.Y.Z.*"
         echo "        X.Y-build*"
+        echo "        X.Y-M*"
         echo "        latest (X.Y)"
         exit 0
         ;;
@@ -23,18 +24,16 @@ case "$1" in
                 BRANCH="branch-$2"
                 ;;
         esac
-	LATEST=$(curl --silent "https://$BURGRX_USER:$BURGRX_PASS@burgrx.sonarsource.com/api/commitPipelinesStages?project=SonarSource/sonarqube&branch=$BRANCH&nbOfCommits=50" | jq '[.[].pipelines[] | select(.stages[].type == "promotion")] | .[0]')
+	LATEST=$(curl -L --silent "https://$BURGRX_USER:$BURGRX_PASS@burgrx.sonarsource.com/api/commitPipelinesStages?project=SonarSource/sonarqube&branch=$BRANCH&nbOfCommits=50" | jq '[.[].pipelines[] | select(.stages[].type == "promotion")] | .[0]')
         if [ "$LATEST" = "null" ]
         then
             echo "No build found for branch '$BRANCH'!"
             exit 1
         fi
         VERSION=$(echo $LATEST | jq -r '.version')
-        URL=$(echo $LATEST | jq -r '.versionUrl')
         ;;
      *)
         VERSION=$1
-	URL=""
         ;;
 esac
 
@@ -43,8 +42,8 @@ dlAndExtractStable() {
     echo "Trying $SONAR_NAME on bintray..." >&2
     URL="https://sonarsource.bintray.com/Distribution/sonarqube/$SONAR_NAME.zip"
 
-    HTTP_CODE=$(curl --write-out '%{http_code}' --silent --output /dev/null --head "$URL")
-    if [ ! "$HTTP_CODE" = "200" ]  
+    HTTP_CODE=$(curl -L --write-out '%{http_code}' --silent --output /dev/null --head "$URL")
+    if [ ! "$HTTP_CODE" = "200" ]
     then
         echo "error"
         return
@@ -60,16 +59,19 @@ dlAndExtractStable() {
 dlAndExtractBuild() {
     SONAR_NAME="sonar-application-$1"
     echo "Trying $SONAR_NAME on repox..." >&2
-    if [ "$URL" = "" ]  
-    then
-        URL="https://repox.sonarsource.com/sonarsource-public-builds/org/sonarsource/sonarqube/sonar-application/$1/$SONAR_NAME.zip"
-    fi
+    URL="https://$REPOX_USER:$REPOX_PASS@repox.sonarsource.com/sonarsource/org/sonarsource/sonarqube/sonar-application/$1/$SONAR_NAME.zip"
 
-    HTTP_CODE=$(curl --write-out '%{http_code}' --silent --output /dev/null --head "$URL")
-    if [ ! "$HTTP_CODE" = "200" ]  
+    HTTP_CODE=$(curl -L --write-out '%{http_code}' --silent --output /dev/null --head "$URL")
+    if [ ! "$HTTP_CODE" = "200" ]
     then
-        echo "error"
-        return
+	URL="https://repox.sonarsource.com/sonarsource-dev/org/sonarsource/sonarqube/sonar-application/$1/$SONAR_NAME.zip"
+
+        HTTP_CODE=$(curl -L --write-out '%{http_code}' --silent --output /dev/null --head "$URL")
+        if [ ! "$HTTP_CODE" = "200" ]
+        then
+            echo "error"
+            return
+        fi
     fi
 
     echo "Downloading $SONAR_NAME..." >&2
@@ -111,7 +113,7 @@ else
                 else
 
                     case "$VERSION" in 
-                    *[0-9]\.[0-9]\.[0-9]\.*|*build*)
+                    *[0-9]\.[0-9]\.[0-9]\.*|*build*|*-M*)
                         ret=$(dlAndExtractBuild $VERSION $URL)
                         if [ ! "$ret" = "done" ]
                         then
