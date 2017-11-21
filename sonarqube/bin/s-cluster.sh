@@ -4,7 +4,7 @@
 set -e
  
 usage() {
-    echo "Usage: `basename $0` [start|stop|status|dump (all|1|2|3)] [reset (all|1|2|3) (-P|M|O|MS) (host)] [clean]"
+    echo "Usage: `basename $0` [start|stop|status|dump (all|app|es|0-9)] [reset (all|0-9) (-P|M|O|MS) (host)] [clean|cleanes|cleanlog]"
     echo "    -P start with postgres"
     echo "    -M start with mysql"
     echo "    -O start with oracle"
@@ -50,17 +50,27 @@ removeCluster () {
     then
         rm -rf ${INSTANCE_NODE}3
     fi
+    if [ -d "${INSTANCE_NODE}4" ]
+    then
+        rm -rf ${INSTANCE_NODE}4
+    fi
+    if [ -d "${INSTANCE_NODE}5" ]
+    then
+        rm -rf ${INSTANCE_NODE}5
+    fi
 }
 
 prepareCluster () {
     cp -r $(readlink $SONAR_CURRENT) ${INSTANCE_NODE}$1
+    cp ${INSTANCE_NODE}$1/lib/bundled-plugins/* ${INSTANCE_NODE}$1/extensions/plugins/
 }
 
 addConfig () {
     echo "$GENER_START" >> $1/$SONAR_PROPERTIES_FILE
 
-    # Configure dev update center
+    # Configure dev update center & co
     echo "sonar.updatecenter.url=https://update.sonarsource.org/update-center-dev.properties" >> $1/$SONAR_PROPERTIES_FILE
+    echo "sonar.telemetry.url=http://localhost/dev/null" >> $1/$SONAR_PROPERTIES_FILE
 
     # set DB url & port
     if [ -n "$2" ]
@@ -79,43 +89,66 @@ addConfig () {
     # Set secret key for auth
     echo "sonar.auth.jwtBase64Hs256Secret=MfKw3dS6tvaWsQlK06QvIDUkiw3r8+hgkJGOTNC30d8=" >> $1/$SONAR_PROPERTIES_FILE
 
+    # set passcode for monitoring
+    echo "sonar.web.systemPasscode=admin+" >> $1/$SONAR_PROPERTIES_FILE
+
     echo $GENER_END >> $1/$SONAR_PROPERTIES_FILE
 }
 
-#waitProcessUp () {
-#	TMP_LOGS=/tmp/tmplogs.$$
-#	mkfifo "${TMP_LOGS}"
-#	tail -f $1/logs/sonar.log > ${TMP_LOGS} &
-#	TAIL_PID=$!
-#	grep -m 1 -e "Process\[$2\] is up" "${TMP_LOGS}"
-#	kill "${TAIL_PID}"
-#	rm ${TMP_LOGS}
-#}
-
-addConfigNODE() {
+addConfigAppNODE() {
     echo "$GENER_START" >> $1/$SONAR_PROPERTIES_FILE
 
     # set WEB url & port
-    # echo "sonar.web.host=" >> $2/$SONAR_PROPERTIES_FILE
+    echo "sonar.web.host=$2" >> $1/$SONAR_PROPERTIES_FILE
     echo "sonar.web.port=$3" >> $1/$SONAR_PROPERTIES_FILE
+
+    echo "sonar.cluster.enabled=true" >> $1/$SONAR_PROPERTIES_FILE
+    echo "sonar.cluster.name=test_cluster" >> $1/$SONAR_PROPERTIES_FILE
+    echo "sonar.cluster.node.type=application" >> $1/$SONAR_PROPERTIES_FILE
+    echo "sonar.cluster.node.name=$4" >> $1/$SONAR_PROPERTIES_FILE
+    echo "sonar.cluster.node.host=$5" >> $1/$SONAR_PROPERTIES_FILE
+    echo "sonar.cluster.node.port=$6" >> $1/$SONAR_PROPERTIES_FILE
+    echo "sonar.cluster.hosts=$7" >> $1/$SONAR_PROPERTIES_FILE
+    echo "sonar.cluster.search.hosts=$8" >> $1/$SONAR_PROPERTIES_FILE
+
+    echo "sonar.cluster.node.web.port=$9" >> $1/$SONAR_PROPERTIES_FILE
+    echo "sonar.cluster.node.ce.port=$10" >> $1/$SONAR_PROPERTIES_FILE
+
+    #echo "sonar.search.issues.shards=10" >> $1/$SONAR_PROPERTIES_FILE
+    #echo "sonar.search.rules.shards=10" >> $1/$SONAR_PROPERTIES_FILE
+    #echo "sonar.search.recovery.delayInMs=10000" >> $1/$SONAR_PROPERTIES_FILE
+    #echo "sonar.search.recovery.minAgeInMs=30000" >> $1/$SONAR_PROPERTIES_FILE
+
+    # enable DEBUG logs
+    echo "sonar.log.level=DEBUG" >> $1/$SONAR_PROPERTIES_FILE
+
+    echo $GENER_END >> $1/$SONAR_PROPERTIES_FILE
+}
+
+addConfigEsNODE() {
+    echo "$GENER_START" >> $1/$SONAR_PROPERTIES_FILE
 
     # set ES url & port
     echo "sonar.search.host=$2" >> $1/$SONAR_PROPERTIES_FILE
-    echo "sonar.search.port=$4" >> $1/$SONAR_PROPERTIES_FILE
+    echo "sonar.search.port=$3" >> $1/$SONAR_PROPERTIES_FILE
 
     echo "sonar.cluster.enabled=true" >> $1/$SONAR_PROPERTIES_FILE
-    echo "sonar.cluster.search.disabled=false" >> $1/$SONAR_PROPERTIES_FILE
-    echo "sonar.cluster.ce.disabled=false" >> $1/$SONAR_PROPERTIES_FILE
-    echo "sonar.cluster.web.disabled=false" >> $1/$SONAR_PROPERTIES_FILE
-    echo "sonar.cluster.search.hosts=$5" >> $1/$SONAR_PROPERTIES_FILE
-
     echo "sonar.cluster.name=test_cluster" >> $1/$SONAR_PROPERTIES_FILE
-    echo "sonar.cluster.port=$6" >> $1/$SONAR_PROPERTIES_FILE
+    echo "sonar.cluster.node.type=search" >> $1/$SONAR_PROPERTIES_FILE
+    echo "sonar.cluster.node.name=$4" >> $1/$SONAR_PROPERTIES_FILE
+    echo "sonar.cluster.node.host=$5" >> $1/$SONAR_PROPERTIES_FILE
+    echo "sonar.cluster.node.port=$6" >> $1/$SONAR_PROPERTIES_FILE
     echo "sonar.cluster.hosts=$7" >> $1/$SONAR_PROPERTIES_FILE
-    #echo "sonar.cluster.networkInterfaces=eth0" >> $1/$SONAR_PROPERTIES_FILE
+    echo "sonar.cluster.search.hosts=$8" >> $1/$SONAR_PROPERTIES_FILE
+
+    echo "sonar.search.httpPort=$9" >> $1/$SONAR_PROPERTIES_FILE
+    #echo "sonar.search.issues.shards=10" >> $1/$SONAR_PROPERTIES_FILE
+    #echo "sonar.search.rules.shards=10" >> $1/$SONAR_PROPERTIES_FILE
+    #echo "sonar.search.recovery.delayInMs=10000" >> $1/$SONAR_PROPERTIES_FILE
+    #echo "sonar.search.recovery.minAgeInMs=30000" >> $1/$SONAR_PROPERTIES_FILE
 
     # enable DEBUG logs
-    # echo "sonar.log.level=DEBUG" >> $1/$SONAR_PROPERTIES_FILE
+    echo "sonar.log.level=DEBUG" >> $1/$SONAR_PROPERTIES_FILE
 
     echo $GENER_END >> $1/$SONAR_PROPERTIES_FILE
 }
@@ -124,12 +157,26 @@ case "$1" in
     "start"|"stop"|"status"|"dump")
         case "$2" in
             all)
+		#ES
+		${INSTANCE_NODE}3/bin/$SONAR_WRAPPER_FOLDER/sonar.sh $1
+		${INSTANCE_NODE}4/bin/$SONAR_WRAPPER_FOLDER/sonar.sh $1
+		${INSTANCE_NODE}5/bin/$SONAR_WRAPPER_FOLDER/sonar.sh $1
+
+		#App
 	        ${INSTANCE_NODE}1/bin/$SONAR_WRAPPER_FOLDER/sonar.sh $1
 	        ${INSTANCE_NODE}2/bin/$SONAR_WRAPPER_FOLDER/sonar.sh $1
-        	${INSTANCE_NODE}3/bin/$SONAR_WRAPPER_FOLDER/sonar.sh $1
                 ;;
-            1|2|3)
+            [0-9])
         	${INSTANCE_NODE}$2/bin/$SONAR_WRAPPER_FOLDER/sonar.sh $1
+	        ;;
+            app)
+	        ${INSTANCE_NODE}1/bin/$SONAR_WRAPPER_FOLDER/sonar.sh $1
+	        ${INSTANCE_NODE}2/bin/$SONAR_WRAPPER_FOLDER/sonar.sh $1
+	        ;;
+            es)
+		${INSTANCE_NODE}3/bin/$SONAR_WRAPPER_FOLDER/sonar.sh $1
+		${INSTANCE_NODE}4/bin/$SONAR_WRAPPER_FOLDER/sonar.sh $1
+		${INSTANCE_NODE}5/bin/$SONAR_WRAPPER_FOLDER/sonar.sh $1
 	        ;;
             *)
                 usage
@@ -139,19 +186,12 @@ case "$1" in
 
     "reset")
 	case "$2" in
-	    all|1|2|3)
+	    all|[0-9])
 		;;
 	    *)
 		usage
 		;;
 	esac
-
-	PLUGINS=$(ls -A "$SONAR_CURRENT/extensions/plugins/")
-        if [ "$PLUGINS" = "README.txt" ]
-        then
-            echo "Run SonarQube in standalone mode first!"
-            exit 1
-        fi
 
 	removeCluster
         cleanConfig $SONAR_CURRENT
@@ -198,68 +238,111 @@ case "$1" in
 
 	NODE1_WEB_PORT="9001"
 	NODE2_WEB_PORT="9002"
-	NODE3_WEB_PORT="9003"
 
-	NODE1_SEARCH_PORT="9011"
-	NODE2_SEARCH_PORT="9012"
 	NODE3_SEARCH_PORT="9013"
+	NODE4_SEARCH_PORT="9014"
+	NODE5_SEARCH_PORT="9015"
+
+	NODE1_CLUSTER_WEB_PORT="9021"
+	NODE2_CLUSTER_WEB_PORT="9022"
+	NODE1_CLUSTER_CE_PORT="9031"
+	NODE2_CLUSTER_CE_PORT="9032"
+
+	NODE1_CLUSTER_NAME="App-1"
+	NODE2_CLUSTER_NAME="App-2"
+	NODE3_CLUSTER_NAME="ES-3"
+	NODE4_CLUSTER_NAME="ES-4"
+	NODE5_CLUSTER_NAME="ES-5"
 
 	NODE1_CLUSTER_PORT="9051"
 	NODE2_CLUSTER_PORT="9052"
 	NODE3_CLUSTER_PORT="9053"
+	NODE4_CLUSTER_PORT="9054"
+	NODE5_CLUSTER_PORT="9055"
+
+	NODE3_SEARCH_HTTP_PORT="9093"
+	NODE4_SEARCH_HTTP_PORT="9094"
+	NODE5_SEARCH_HTTP_PORT="9095"
 
         case "$2" in
             all)
 		NODE1_IP="10.0.2.11"
 		NODE2_IP="10.0.2.11"
 		NODE3_IP="10.0.2.11"
+		NODE4_IP="10.0.2.11"
+		NODE5_IP="10.0.2.11"
 
-		NODE1_CLUSTER_SEARCH_IPS="$NODE2_IP:$NODE2_SEARCH_PORT,$NODE3_IP:$NODE3_SEARCH_PORT"
-		NODE2_CLUSTER_SEARCH_IPS="$NODE1_IP:$NODE1_SEARCH_PORT,$NODE3_IP:$NODE3_SEARCH_PORT"
-		NODE3_CLUSTER_SEARCH_IPS="$NODE1_IP:$NODE1_SEARCH_PORT,$NODE2_IP:$NODE2_SEARCH_PORT"
-		NODE_CLUSTER_IPS="$NODE1_IP:$NODE1_CLUSTER_PORT,$NODE2_IP:$NODE2_CLUSTER_PORT,$NODE3_IP:$NODE3_CLUSTER_PORT"
+		NODE1_CLUSTER_SEARCH_IPS="$NODE3_IP:$NODE3_SEARCH_PORT,$NODE4_IP:$NODE4_SEARCH_PORT,$NODE5_IP:$NODE5_SEARCH_PORT"
+		NODE2_CLUSTER_SEARCH_IPS="$NODE3_IP:$NODE3_SEARCH_PORT,$NODE4_IP:$NODE4_SEARCH_PORT,$NODE5_IP:$NODE5_SEARCH_PORT"
+		NODE3_CLUSTER_SEARCH_IPS="$NODE4_IP:$NODE4_SEARCH_PORT,$NODE5_IP:$NODE5_SEARCH_PORT"
+		NODE4_CLUSTER_SEARCH_IPS="$NODE3_IP:$NODE3_SEARCH_PORT,$NODE5_IP:$NODE5_SEARCH_PORT"
+		NODE5_CLUSTER_SEARCH_IPS="$NODE3_IP:$NODE3_SEARCH_PORT,$NODE4_IP:$NODE4_SEARCH_PORT"
+		NODE_CLUSTER_IPS="$NODE1_IP:$NODE1_CLUSTER_PORT,$NODE2_IP:$NODE2_CLUSTER_PORT,$NODE3_IP:$NODE3_CLUSTER_PORT,$NODE4_IP:$NODE4_CLUSTER_PORT,$NODE5_IP:$NODE5_CLUSTER_PORT"
 
 	        prepareCluster 1
 	        prepareCluster 2
 	        prepareCluster 3
+	        prepareCluster 4
+	        prepareCluster 5
 
-                addConfigNODE ${INSTANCE_NODE}1 $NODE1_IP $NODE1_WEB_PORT $NODE1_SEARCH_PORT $NODE1_CLUSTER_SEARCH_IPS $NODE1_CLUSTER_PORT $NODE_CLUSTER_IPS
-                addConfigNODE ${INSTANCE_NODE}2 $NODE2_IP $NODE2_WEB_PORT $NODE2_SEARCH_PORT $NODE2_CLUSTER_SEARCH_IPS $NODE2_CLUSTER_PORT $NODE_CLUSTER_IPS
-                addConfigNODE ${INSTANCE_NODE}3 $NODE3_IP $NODE3_WEB_PORT $NODE3_SEARCH_PORT $NODE3_CLUSTER_SEARCH_IPS $NODE3_CLUSTER_PORT $NODE_CLUSTER_IPS
+                addConfigAppNODE ${INSTANCE_NODE}1 $NODE1_IP $NODE1_WEB_PORT $NODE1_CLUSTER_NAME $NODE1_IP $NODE1_CLUSTER_PORT $NODE_CLUSTER_IPS $NODE1_CLUSTER_SEARCH_IPS $NODE1_CLUSTER_WEB_PORT $NODE2_CLUSTER_WEB_PORT
+                addConfigAppNODE ${INSTANCE_NODE}2 $NODE2_IP $NODE2_WEB_PORT $NODE2_CLUSTER_NAME $NODE2_IP $NODE2_CLUSTER_PORT $NODE_CLUSTER_IPS $NODE2_CLUSTER_SEARCH_IPS $NODE1_CLUSTER_CE_PORT $NODE2_CLUSTER_CE_PORT
+                addConfigEsNODE ${INSTANCE_NODE}3 $NODE3_IP $NODE3_SEARCH_PORT $NODE3_CLUSTER_NAME $NODE3_IP $NODE3_CLUSTER_PORT $NODE_CLUSTER_IPS $NODE3_CLUSTER_SEARCH_IPS $NODE3_SEARCH_HTTP_PORT
+                addConfigEsNODE ${INSTANCE_NODE}4 $NODE4_IP $NODE4_SEARCH_PORT $NODE4_CLUSTER_NAME $NODE4_IP $NODE4_CLUSTER_PORT $NODE_CLUSTER_IPS $NODE4_CLUSTER_SEARCH_IPS $NODE4_SEARCH_HTTP_PORT
+                addConfigEsNODE ${INSTANCE_NODE}5 $NODE5_IP $NODE5_SEARCH_PORT $NODE5_CLUSTER_NAME $NODE5_IP $NODE5_CLUSTER_PORT $NODE_CLUSTER_IPS $NODE5_CLUSTER_SEARCH_IPS $NODE5_SEARCH_HTTP_PORT
 	        ;;
 
-            1)
+            1|2)
 		NODE1_IP="10.0.2.11"
 		NODE2_IP="10.0.2.12"
 		NODE3_IP="10.0.2.13"
-		NODE1_CLUSTER_SEARCH_IPS="$NODE2_IP:$NODE2_SEARCH_PORT,$NODE3_IP:$NODE3_SEARCH_PORT"
-		NODE_CLUSTER_IPS="$NODE1_IP:$NODE1_CLUSTER_PORT,$NODE2_IP:$NODE2_CLUSTER_PORT,$NODE3_IP:$NODE3_CLUSTER_PORT"
+		NODE4_IP="10.0.2.14"
+		NODE5_IP="10.0.2.15"
+
+		NODE1_CLUSTER_SEARCH_IPS="$NODE3_IP:$NODE3_SEARCH_PORT,$NODE4_IP:$NODE4_SEARCH_PORT,$NODE5_IP:$NODE5_SEARCH_PORT"
+		NODE2_CLUSTER_SEARCH_IPS="$NODE3_IP:$NODE3_SEARCH_PORT,$NODE4_IP:$NODE4_SEARCH_PORT,$NODE5_IP:$NODE5_SEARCH_PORT"
+		NODE3_CLUSTER_SEARCH_IPS="$NODE4_IP:$NODE4_SEARCH_PORT,$NODE5_IP:$NODE5_SEARCH_PORT"
+		NODE4_CLUSTER_SEARCH_IPS="$NODE3_IP:$NODE3_SEARCH_PORT,$NODE5_IP:$NODE5_SEARCH_PORT"
+		NODE5_CLUSTER_SEARCH_IPS="$NODE3_IP:$NODE3_SEARCH_PORT,$NODE4_IP:$NODE4_SEARCH_PORT"
+		NODE_CLUSTER_IPS="$NODE1_IP:$NODE1_CLUSTER_PORT,$NODE2_IP:$NODE2_CLUSTER_PORT,$NODE3_IP:$NODE3_CLUSTER_PORT,$NODE4_IP:$NODE4_CLUSTER_PORT,$NODE5_IP:$NODE5_CLUSTER_PORT"
 
 	        prepareCluster $2
 
-                addConfigNODE ${INSTANCE_NODE}1 $NODE1_IP $NODE1_WEB_PORT $NODE1_SEARCH_PORT $NODE1_CLUSTER_SEARCH_IPS $NODE1_CLUSTER_PORT $NODE_CLUSTER_IPS
+		NODE_IP="NODE${2}_IP"
+		NODE_WEB_PORT="NODE${2}_WEB_PORT"
+		NODE_SEARCH_PORT="NODE${2}_SEARCH_PORT"
+		NODE_CLUSTER_WEB_PORT="NODE${2}_CLUSTER_WEB_PORT"
+		NODE_CLUSTER_CE_PORT="NODE${2}_CLUSTER_CE_PORT"
+		NODE_CLUSTER_SEARCH_IPS="NODE${2}_CLUSTER_SEARCH_IPS"
+		NODE_CLUSTER_NAME="App-${2}"
+		NODE_CLUSTER_PORT="NODE${2}_CLUSTER_PORT"
+		NODE_SEARCH_HTTP_PORT="NODE${2}_SEARCH_HTTP_PORT"
+                addConfigAppNODE ${INSTANCE_NODE}$2 $NODE_IP $NODE_WEB_PORT $NODE_CLUSTER_NAME $NODE_IP $NODE_CLUSTER_PORT $NODE_CLUSTER_IPS $NODE_CLUSTER_SEARCH_IPS $NODE_CLUSTER_WEB_PORT $NODE_CLUSTER_WEB_PORT
 	        ;;
-            2)
+            3|4|5)
 		NODE1_IP="10.0.2.11"
 		NODE2_IP="10.0.2.12"
 		NODE3_IP="10.0.2.13"
-		NODE2_CLUSTER_SEARCH_IPS="$NODE1_IP:$NODE1_SEARCH_PORT,$NODE3_IP:$NODE3_SEARCH_PORT"
-		NODE_CLUSTER_IPS="$NODE1_IP:$NODE1_CLUSTER_PORT,$NODE2_IP:$NODE2_CLUSTER_PORT,$NODE3_IP:$NODE3_CLUSTER_PORT"
+		NODE4_IP="10.0.2.14"
+		NODE5_IP="10.0.2.15"
+
+		NODE1_CLUSTER_SEARCH_IPS="$NODE3_IP:$NODE3_SEARCH_PORT,$NODE4_IP:$NODE4_SEARCH_PORT,$NODE5_IP:$NODE5_SEARCH_PORT"
+		NODE2_CLUSTER_SEARCH_IPS="$NODE3_IP:$NODE3_SEARCH_PORT,$NODE4_IP:$NODE4_SEARCH_PORT,$NODE5_IP:$NODE5_SEARCH_PORT"
+		NODE3_CLUSTER_SEARCH_IPS="$NODE4_IP:$NODE4_SEARCH_PORT,$NODE5_IP:$NODE5_SEARCH_PORT"
+		NODE4_CLUSTER_SEARCH_IPS="$NODE3_IP:$NODE3_SEARCH_PORT,$NODE5_IP:$NODE5_SEARCH_PORT"
+		NODE5_CLUSTER_SEARCH_IPS="$NODE3_IP:$NODE3_SEARCH_PORT,$NODE4_IP:$NODE4_SEARCH_PORT"
+		NODE_CLUSTER_IPS="$NODE1_IP:$NODE1_CLUSTER_PORT,$NODE2_IP:$NODE2_CLUSTER_PORT,$NODE3_IP:$NODE3_CLUSTER_PORT,$NODE4_IP:$NODE4_CLUSTER_PORT,$NODE5_IP:$NODE5_CLUSTER_PORT"
 
 	        prepareCluster $2
 
-                addConfigNODE ${INSTANCE_NODE}2 $NODE2_IP $NODE2_WEB_PORT $NODE2_SEARCH_PORT $NODE2_CLUSTER_SEARCH_IPS $NODE2_CLUSTER_PORT $NODE_CLUSTER_IPS
-	        ;;
-            3)
-		NODE1_IP="10.0.2.11"
-		NODE2_IP="10.0.2.12"
-		NODE3_IP="10.0.2.13"
-		NODE3_CLUSTER_SEARCH_IPS="$NODE1_IP:$NODE1_SEARCH_PORT,$NODE2_IP:$NODE2_SEARCH_PORT"
-		NODE_CLUSTER_IPS="$NODE1_IP:$NODE1_CLUSTER_PORT,$NODE2_IP:$NODE2_CLUSTER_PORT,$NODE3_IP:$NODE3_CLUSTER_PORT"
-
-	        prepareCluster $2
-
-                addConfigNODE ${INSTANCE_NODE}3 $NODE3_IP $NODE3_WEB_PORT $NODE3_SEARCH_PORT $NODE3_CLUSTER_SEARCH_IPS $NODE3_CLUSTER_PORT $NODE_CLUSTER_IPS
+		NODE_IP="NODE${2}_IP"
+		NODE_WEB_PORT="NODE${2}_WEB_PORT"
+		NODE_SEARCH_PORT="NODE${2}_SEARCH_PORT"
+		NODE_CLUSTER_SEARCH_IPS="NODE${2}_CLUSTER_SEARCH_IPS"
+		NODE_CLUSTER_NAME="ES-${2}"
+		NODE_CLUSTER_PORT="NODE${2}_CLUSTER_PORT"
+		NODE_SEARCH_HTTP_PORT="NODE${2}_SEARCH_HTTP_PORT"
+                addConfigEsNODE ${INSTANCE_NODE}$2 $NODE_IP $NODE_SEARCH_PORT $NODE_CLUSTER_NAME $NODE_IP $NODE_CLUSTER_PORT $NODE_CLUSTER_IPS $NODE_CLUSTER_SEARCH_IPS $NODE_SEARCH_HTTP_PORT
 	        ;;
         esac
         ;;
@@ -271,6 +354,22 @@ case "$1" in
         # clean temp data
         rm -rf $SONAR_CURRENT/data/*
         rm -rf $SONAR_CURRENT/logs/*
+        ;;
+
+    "cleanes")
+	rm -rf ${INSTANCE_NODE}1/data/*
+	rm -rf ${INSTANCE_NODE}2/data/*
+	rm -rf ${INSTANCE_NODE}3/data/*
+	rm -rf ${INSTANCE_NODE}4/data/*
+	rm -rf ${INSTANCE_NODE}5/data/*
+        ;;
+
+    "cleanlog")
+	rm -rf ${INSTANCE_NODE}1/logs/*
+	rm -rf ${INSTANCE_NODE}2/logs/*
+	rm -rf ${INSTANCE_NODE}3/logs/*
+	rm -rf ${INSTANCE_NODE}4/logs/*
+	rm -rf ${INSTANCE_NODE}5/logs/*
         ;;
 
     *)
