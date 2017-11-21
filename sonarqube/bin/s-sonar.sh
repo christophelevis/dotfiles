@@ -4,7 +4,7 @@
 set -e
  
 usage() {
-    echo "Usage: `basename $0` [start] [stop] [restart] [status] [dump] [reset (-P|M|O|MS) (host)]"
+    echo "Usage: `basename $0` [start] [stop] [restart] [status] [dump] [reset (-P|M|O|MS) (host)] [clean]"
     echo "    -P start with postgres"
     echo "    -M start with mysql"
     echo "    -O start with oracle"
@@ -38,8 +38,9 @@ cleanConfig () {
 addConfig () {
     echo "$GENER_START" >> $SONAR_PROPERTIES_FILE
 
-    # Configure dev update center
+    # Configure dev update center & co
     echo "sonar.updatecenter.url=https://update.sonarsource.org/update-center-dev.properties" >> $SONAR_PROPERTIES_FILE
+    echo "sonar.telemetry.url=http://localhost/dev/null" >> $SONAR_PROPERTIES_FILE
 
     # set DB url & port
     if [ -n "$1" ]
@@ -54,6 +55,19 @@ addConfig () {
     # set DB credentials
     echo "sonar.jdbc.username=sonar" >> $SONAR_PROPERTIES_FILE
     echo "sonar.jdbc.password=sonar" >> $SONAR_PROPERTIES_FILE  
+
+    # set ES web ip and port
+    echo "sonar.search.host=10.0.2.11" >> $SONAR_PROPERTIES_FILE
+    echo "sonar.search.httpPort=9090" >> $SONAR_PROPERTIES_FILE
+
+    # Set secret key for auth
+    echo "sonar.auth.jwtBase64Hs256Secret=MfKw3dS6tvaWsQlK06QvIDUkiw3r8+hgkJGOTNC30d8=" >> $SONAR_PROPERTIES_FILE
+
+    # set passcode for monitoring
+    echo "sonar.web.systemPasscode=admin+" >> $SONAR_PROPERTIES_FILE
+
+    # test
+    #echo "sonar.search.issues.shards=10" >> $SONAR_PROPERTIES_FILE
 
     echo $GENER_END >> $SONAR_PROPERTIES_FILE
 }
@@ -114,6 +128,10 @@ case "$1" in
                 addConfig $SONAR_JDBC_URL 9092
                 ;;
         esac
+	;;
+
+    "clean")
+        cleanConfig
 
         # clean temp data
         rm -rf $SONAR_CURRENT/data/*
